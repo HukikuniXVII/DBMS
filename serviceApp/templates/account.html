@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/nav.css">
+    <link rel="stylesheet" href="/static/css/footer.css">
+    <link rel="stylesheet" href="/static/css/review.css">
+    <link rel="stylesheet" href="/static/css/reg.css">
+    <link rel="stylesheet" href="/static/css/service.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1531/1531056.png">
+
+
+    <!-- framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        .account-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .booking-status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .pending {
+            background: #ffc107;
+            color: #fff;
+        }
+
+        .confirmed {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .canceled {
+            background: #dc3545;
+            color: #fff;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <!-- NAV -->
+        <nav class="navbar">
+            <div class="logo">
+                <h2>MASSAGE & SPA</h2>
+            </div>
+
+            <label for="input-hamburger" class="hamburger">
+            </label>
+            <input type="checkbox" id="input-hamburger" hidden>
+
+
+            <ul class="sidebar">
+
+                <li><a href="/" class="menu-link">หน้าแรก</a></li>
+                <li><a href="/service" class="menu-link">บริการ</a></li>
+                <li><a href="/review" class="menu-link">รีวิว</a></li>
+                <li><a href="/booking1" id="menu-book" class="menu-link">จองเวลา</a></li>
+                {%if request.user.is_authenticated %}
+                <li><a href="/account" class="menu-link">สวัสดี {{request.user.first_name}} !</a></li>
+                <li><a href="/logout" class="menu-link">ออกจากระบบ</a></li>
+                {% else %}
+                <li><a href="/login" class="menu-link">เข้าสู่ระบบ</a></li>
+                {% endif %}
+
+
+            </ul>
+        </nav>
+    </header>
+    <div class="account-container">
+        <!-- Profile Section -->
+        <h2 style="text-align: center;">My Account</h2>
+        <br>
+        <div class="d-flex align-items-center mb-4" id="profile-section">
+            <img src="https://www.strasys.uk/wp-content/uploads/2022/02/Depositphotos_484354208_S-300x300.jpg"
+                alt="Profile Picture" class="profile-pic me-3">
+            <div>
+                <h4 id="user-name"></h4>
+                <p>Email: <span id="user-email"></span><br>
+                    Address: <span id="user-address"></span><br>
+                    Phone: <span id="user-phone"></span><br>
+                    Birthdate: <span id="user-birthdate"></span></p>
+                <button class="btn btn-primary" id="edit-profile-btn">Edit Profile</button>
+            </div>
+        </div>
+
+        <!-- Booking History -->
+        <h3>My Bookings</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Date & Time</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="booking-history">
+            </tbody>
+        </table>
+
+        <!-- Payment Methods -->
+        <h3>Payment Methods</h3>
+        <ul class="list-group mb-3" id="payment-methods">
+        </ul>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">Add Payment
+            Method</button>
+
+        <!-- Logout Button -->
+        <div class="text-center mt-4">
+            <button class="btn btn-secondary" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a class="logo"
+            style="color: #DAC494; text-shadow: rgb(158, 158, 158) 1px 0 10px; font-size: 25px; margin-top: 50px; margin-left: 20px;"
+            href="/">MASSAGE & SPA</a>
+        <div class="nav">
+            <div class="links">
+                <ul>
+                    <li style=" color: #DAC494; font-size: 18px; font-weight: bold;">Link</li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/service">Services</a></li>
+                    <li><a href="/review">Review</a></li>
+                    <li><a href="/account">Account</a></li>
+                </ul>
+            </div>
+            <div class="social">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Contact</li>
+                    <li>Email : @gmail.com</li>
+                    <li> Phone : 08812345678</li>
+                    <li> Address : 123 kosumpisai</li>
+                </ul>
+            </div>
+
+            <div class="opening">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Opening Time</li>
+                    <li>Open 7 days a week </li>
+                    <li>10:00 - 00:00</li>
+
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // ดึงข้อมูลผู้ใช้จาก localStorage หรือ API
+            let user = JSON.parse(localStorage.getItem("user")) || {
+                name: "ไม่ระบุ",
+                email: "ไม่ระบุ",
+                phone: "ไม่ระบุ"
+            };
+
+            // แสดงข้อมูลบนหน้าเว็บ
+            document.getElementById("user-name").textContent = user.name;
+            document.getElementById("user-email").textContent = user.email;
+            document.getElementById("user-phone").textContent = user.phone;
+
+            console.log("Page loaded!");
+
+        });
+
+        function logout() {
+            localStorage.removeItem("user");
+            alert("ออกจากระบบสำเร็จ");
+            window.location.href = "login.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/user-data')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Not authenticated');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('user-name').innerText = data.name;
+                    document.getElementById('user-email').innerText = data.email;
+                    document.getElementById('user-address').innerText = data.address;
+                    document.getElementById('user-phone').innerText = data.phone;
+                    document.getElementById('user-birthdate').innerText = data.birthdate;
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                });
+
+            fetch('/booking-history')
+                .then(response => response.json())
+                .then(data => {
+                    let bookingHistory = document.getElementById('booking-history');
+                    bookingHistory.innerHTML = '';
+                    data.forEach(booking => {
+                        let row = `<tr>
+                            <td>${booking.booking_id}</td>
+                            <td>${booking.booking_date}</td>
+                            <td>${booking.service__name}</td>
+                            <td><span class="booking-status ${booking.status.toLowerCase()}">${booking.status}</span></td>
+                        </tr>`;
+                        bookingHistory.innerHTML += row;
+                    });
+                });
+
+            fetch('/api/payment-methods/')
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        data.forEach(payment => console.log(payment));
+                    } else {
+                        console.error("Expected an array but got:", data);
+                    }
+                })
+        });
+    </script>
+</body>
+
+
+
+</html>

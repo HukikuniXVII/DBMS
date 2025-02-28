@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- INTRO-SLIDE -->
+    <div class="intro">
+        <div class="intro-slideshow">
+            <img  src="https://www.omnihotels.com/-/media/images/globals/spa/spa-candles-856952836.jpg?h=660&iar=0&w=1170"
+                alt="">
+            <img src="https://img.freepik.com/premium-photo/thai-spa-massage-is-soothing-massage-therapy-specifically-designed-women-promote-relaxation_908985-14100.jpg" alt="">
+            <img src="https://cdn.pixabay.com/photo/2023/10/28/11/21/ai-generated-8347190_1280.png" alt="">
+
+        </div>
+        <div class="intro-header">
+            <h2>
+                ไอ้แบงค์อย่าดื้อ
+            </h2>
+            <p>ไอ้แบงค์อย่าดื้อ, <br> where every moment is designed for your ultimate relaxation.
+                <br>
+                Indulge in our professional massage therapies, luxurious spa treatments,<br> and serene atmosphere. Our
+                expert team is here to help you unwind <br> and leave feeling refreshed and energized.
+            </p>
+            <br>
+            <br>
+            <a href="/booking1" class="book-button">BOOK</a>
+        </div>
+    </div>
+
+    <!-- SLIDE -->
+    <script>
+        const slideshowImages = document.querySelectorAll(".intro-slideshow img");
+
+        // 1000 = 1 sec
+        const nextImageDelay = 7000;
+        let currentImageCounter = 0; // setting a variable to keep track of the current image (slide)
+
+        // slideshowImages[currentImageCounter].style.display = "block";
+        slideshowImages[currentImageCounter].style.opacity = 1;
+
+        setInterval(nextImage, nextImageDelay);
+
+        function nextImage() {
+            // slideshowImages[currentImageCounter].style.display = "none";
+            slideshowImages[currentImageCounter].style.opacity = 0;
+
+            currentImageCounter = (currentImageCounter + 1) % slideshowImages.length;
+
+            // slideshowImages[currentImageCounter].style.display = "block";
+            slideshowImages[currentImageCounter].style.opacity = 1;
+        }
+    </script>
+
+    <!-- SERVICE -->
+    <div class="service">
+        <center>
+            <h2 style="color: #231F20;">SERVICES</h2>
+        </center>
+
+        <br>
+        <div class="container2">
+            <div class="row">
+                <!-- SERVICE ADDED -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top"
+                            alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card title</h5>
+                            <p class="card-text">Some quick example text...</p>
+                            <div class="price">
+                                <p>750/hr</p>
+                                <a href="/booking1" class="book-button1">BOOK</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="https://thailand.go.th/uploads/posts/the_post_1691662093.webp" class="card-img-top"
+                            alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card title</h5>
+                            <p class="card-text">Some quick example text...</p>
+                            <div class="price">
+                                <p>750/hr</p>
+                                <a href="/booking1" class="book-button1">BOOK</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/225/2023/09/27090743/woman-enjoying-stone-massage.jpg"
+                            class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Card title</h5>
+                            <p class="card-text">Some quick example text...</p>
+                            <div class="price">
+                                <p>750/hr</p>
+                                <a href="/booking1" class="book-button1">BOOK</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+
+
+            </div>
+
+
+            <br>
+
+        </div>
+        <center><a href="/service" style="margin-top: 20px;" class="book-button2">SEE ALL SERVICES</a>
+
+    </div>
+    <br>
+
+    <!-- REVIEW -->
+    <div class="review">
+        <hr class="hr1" style=" border-bottom: #DAC494 3px solid; margin: 10px; width: 42.5%; float: left;">
+        <hr class="hr1" style=" border-bottom: #DAC494 3px solid; margin: 10px; width: 43.5%; float: right;">
+        <h2 style=" color: #DAC494; width: 10%; margin: 0 auto;"> REVIEWS</h2>
+
+        <section id="testimonials">
+
+            <div class="testimonial-heading">
+                <h1 style="color: #231F20;">REVIEWS</h1>
+            </div>
+
+            <div style="margin-top: -100px;" class="testimonial-box-container">
+
+                <div class="testimonial-box">
+                    <div class="box-top">
+                        <div class="profile">
+                            <div class="profile-img">
+                                <img
+                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                            </div>
+                            <div class="name-user">
+                                <strong>Noah Wood</strong>
+                                <span>27 January 2025</span>
+                            </div>
+                        </div>
+                        <div class="reviews">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="client-comment">
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                    </div>
+                </div>
+
+                <div class="testimonial-box">
+                    <div class="box-top">
+                        <div class="profile">
+                            <div class="profile-img">
+                                <img
+                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                            </div>
+                            <div class="name-user">
+                                <strong>Noah Wood</strong>
+                                <span>27 January 2025</span>
+                            </div>
+                        </div>
+                        <div class="reviews">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="client-comment">
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                    </div>
+                </div>
+                <div class="testimonial-box">
+                    <div class="box-top">
+                        <div class="profile">
+                            <div class="profile-img">
+                                <img
+                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                            </div>
+                            <div class="name-user">
+                                <strong>Noah Wood</strong>
+                                <span>27 January 2025</span>
+                            </div>
+                        </div>
+                        <div class="reviews">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="client-comment">
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                    </div>
+                </div>
+                <div class="testimonial-box">
+                    <div class="box-top">
+                        <div class="profile">
+                            <div class="profile-img">
+                                <img
+                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                            </div>
+                            <div class="name-user">
+                                <strong>Noah Wood</strong>
+                                <span>27 January 2025</span>
+                            </div>
+                        </div>
+                        <div class="reviews">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="client-comment">
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+            <br>
+        </section>
+        <script src='https://kit.fontawesome.com/c8e4d183c2.js'></script>
+        <center><a href="/review" class="book-button2">SEE ALL REVIEWS</a>
+        </center>
+        <br>
+        <hr class="hr1" style=" border-bottom: #DAC494 3px solid; ">
+
+    </div>
+
+    <!-- STAFF -->
+    <section class="our-staff">
+        <h1>OUR STAFF</h1>
+        <div class="staff-container">
+          <div class="staff-member">
+            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 1">
+            <h3>John Doe</h3>
+            <p>Therapist</p>
+            <p>John is a Licensed Massage and Bodywork Therapist</p>
+          </div>
+          <div class="staff-member">
+            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 2">
+            <h3>Jane Smith</h3>
+            <p>Therapist</p>
+            <p>Jane is a Licensed Massage and Bodywork Therapist</p>
+
+          </div>
+          <div class="staff-member">
+            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 3">
+            <h3>Sam Brown</h3>
+            <p>Therapist</p>
+            <p>Sam is a Licensed Massage and Bodywork Therapist</p>
+
+          </div>
+        </div>
+      </section>
+       
+
+    </div>
+    <br>
+
+    <!-- FOOTER  -->
+    <footer>
+        <a class="logo" style="color: #DAC494;     text-shadow: rgb(158, 158, 158) 1px 0 10px;
+font-size: 25px; margin-top: 50px; margin-left: 20px;" href="/">MASSAGE & SPA</a>
+        <div class="nav">
+            <div class="links">
+                <ul>
+                    <li style=" color: #DAC494; font-size: 18px; font-weight: bold;">Link</li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/service">Services</a></li>
+                    <li><a href="/review">Review</a></li>
+                    <li><a href="/account">Account</a></li>
+                </ul>
+            </div>
+            <div class="social">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Contact</li>
+                    <li>Email : @gmail.com</li>
+                    <li> Phone : 08812345678</li>
+                    <li> Address : 123 kosumpisai</li>
+                </ul>
+            </div>
+
+            <div class="opening">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Opening Time</li>
+                    <li>Open 7 days a week </li>
+                    <li>10:00 - 00:00</li>
+
+                </ul>
+            </div>
+        </div>
+        
+    </footer>
+{% endblock %}

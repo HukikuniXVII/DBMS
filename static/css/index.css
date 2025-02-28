@@ -1,0 +1,177 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #F4F5F0;
+
+}
+
+.intro {
+  height: 70vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.intro-slideshow img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* relative to nearest positioned ancestor and not nearest block-level ancestor - alternatively: width: 100vw; */
+  height: 100%;
+  /* relative to nearest positioned ancestor and not nearest block-level ancestor - alternatively: height: 100vh; */
+  object-fit: cover;
+  z-index: -1;
+  /* filter: brightness(50%); */
+  /* 0% black, 100% original image, values > 100% are allowed for brighter than original image. */
+  /* display: none; */
+  opacity: 0;
+  transition: opacity 0.75s ease-in-out;
+}
+
+/* .intro-slideshow img:first-child {
+    display: block;
+    opacity: 1;
+  } */
+.intro .intro-header {
+  border-radius: 0.5rem;
+  padding: 2rem 2.5rem;
+}
+
+.intro h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  font-family: 'Cormorant';
+  color: #DAC494;
+  text-shadow: rgb(158, 158, 158) 1px 0 10px;
+
+}
+
+.intro p {
+  margin-bottom: -0.5rem;
+  font-family: 'Cormorant';
+  font-size: 1.5rem;
+  color: white;
+  text-shadow: rgb(201, 201, 201) 1px 0 10px;
+
+}
+
+
+.price {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card {
+  margin-bottom: 40px;
+}
+
+.service {
+  padding: 30px;
+  height: auto;
+  background-color: #F4F5F0;
+  width: 80%;
+  margin: auto;
+}
+
+.review {
+  padding: 30px;
+  height: auto;
+  background-color: #231F20;
+  width: 100%;
+
+}
+
+.staff {
+  background-color: #F4F5F0;
+  height: auto;
+  
+}
+
+.our-staff {
+  text-align: center;
+  padding: 50px 0;
+}
+
+.our-staff h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.staff-container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  
+}
+
+.staff-member {
+  width: 200px;
+  text-align: center;
+  margin: 30px;
+}
+
+.staff-member img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.staff-member h3 {
+  margin: 10px 0;
+  font-size: 1.2em;
+}
+
+.staff-member p {
+  color: gray;
+}
+
+
+
+
+
+@media (max-width: 700px) {
+  html {
+    font-size: 12px;
+  }
+
+  .intro-header {
+    padding: 1.5rem 2rem;
+  }
+
+  .intro h1 {
+    font-size: 2.5rem;
+  }
+
+  .intro p {
+    font-size: 1.25rem;
+  }
+}
+
+
+h2,
+h5 {
+  font-weight: bold;
+}
+
+.header-font {
+  font-size: 45px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 4px 4px 6px rgba(66, 68, 90, 1);
+  text-align: center;
+  margin-top: 50px;
+}
+
+.card-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+}

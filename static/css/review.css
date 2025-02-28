@@ -1,0 +1,239 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+  }
+  a{
+    text-decoration: none;
+  }
+  #testimonials{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width:100%;
+  }
+  .testimonial-heading{
+    letter-spacing: 1px;
+    margin: 30px 0px;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .testimonial-heading span{
+    font-size: 1.3rem;
+    color: #252525;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .testimonial-box-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width:100%;
+  }
+  .testimonial-box{
+    width:500px;
+    box-shadow: 2px 2px 30px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 15px;
+    cursor: pointer;
+  }
+  .profile-img{
+    width:50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 10px;
+  }
+  .profile-img img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .profile{
+    display: flex;
+    align-items: center;
+  }
+  
+  i{
+    color: #eecb7f;
+  }
+  .name-user{
+    display: flex;
+    flex-direction: column;
+  }
+  .name-user strong{
+    color: #3d3d3d;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+  }
+  .name-user span{
+    color: #979797;
+    font-size: 0.8rem;
+  }
+  .reviews{
+    color: #eecb7f;
+  }
+  .box-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .client-comment p{
+    font-size: 0.9rem;
+    color: #4b4b4b;
+  }
+  .testimonial-box:hover{
+    transform: translateY(-10px);
+    transition: all ease 0.7s;
+  }
+  
+  @media(max-width:1060px){
+    .testimonial-box{
+        width:45%;
+        padding: 10px;
+    }
+  }
+  @media(max-width:790px){
+    .testimonial-box{
+        width:100%;
+    }
+    .testimonial-heading h1{
+        font-size: 1.4rem;
+    }
+    
+  }
+  @media(max-width:340px){
+    .box-top{
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    .reviews{
+        margin-top: 10px;
+    }
+  }
+  ::selection{
+    color: #ffffff;
+    background-color: #252525;
+  }
+
+
+  /* -------------------------------------------------- */
+
+.container {
+    display: flex;
+    width: 68% !important;
+    margin: 50px auto;
+    margin-top: -20px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.stats {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+.stats h2,
+.review-form h2 {
+    color: #333;
+}
+.stats p {
+    color: #555;
+}
+.rating-chart {
+    margin-top: 20px;
+}
+.rating-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.rating-bar span {
+    width: 60px;
+    color: #555;
+}
+.rating-bar .bar {
+    flex: 1;
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.rating-bar .fill {
+    height: 100%;
+    background-color: #eecb7f;
+    border-radius: 10px;
+}
+.review-form {
+    flex: 1;
+    padding: 20px;
+}
+.review-form input,
+.review-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+.review-form .stars {
+    display: flex;
+    margin: 10px 0;
+}
+.review-form .stars span {
+    font-size: 24px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.review-form .stars span.active,
+.review-form .stars span:hover {
+    color: #eecb7f;
+}
+.review-form button {
+    background-color: #231F20;
+    color: #DAC494;
+    border: #DAC494 solid 1px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+.review-form button:hover {
+    background-color: #DAC494;
+    border: #231F20 solid 1px;
+    color: #231F20;
+
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+}
+
+
+.page-link {
+  text-decoration: none;
+  color: white;
+  color: #231F20 !important;
+  padding: 8px 12px;
+  transition: 0.3s;
+}
+
+.page-link:hover {
+  color: #DAC494;
+
+  background-color: #0056b3;
+}
+

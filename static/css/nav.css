@@ -1,0 +1,323 @@
+@font-face {
+    font-family: 'garamond';
+    src: url(./font/EB_Garamond/EBGaramond-VariableFont_wght.ttf);
+}
+
+*{
+    font-family: 'garamond';
+}
+
+body{
+    background-color: #F4F5F0 !important;
+}
+
+:root {
+    box-sizing: border-box;
+  
+    --primary: #231F20;
+    --dark: #095c4d;
+    --light: #DAC494;
+  
+    --header-bg: var(--primary);
+  }
+
+  .logo a{
+      text-decoration: none;
+    }
+
+  
+  .logo h2{
+    font-weight:600;
+    line-height: 1px;
+    color: #DAC494;
+    font-size: 1.5vw;
+
+  }
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    min-width: 480px !important;
+    font-size: 1rem;
+  }
+
+header {
+    background: var(--header-bg);
+    padding-left: 1.5em;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    height: 80px;
+
+  }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 999;
+  }
+  .sidebar {
+    display: flex;
+    flex-direction: row;
+    z-index: 1000;
+  }
+  .sidebar li ,nav{
+    list-style: none;
+  }
+  .sidebar li a {
+    display: block;
+    text-decoration: none;
+    color: var(--light);
+    padding: 1em 1.5em;
+    font-size: 1.2vw;
+    font-weight: bold;
+    transition: all 0.5s ease-in-out;
+
+}
+
+#menu-book{
+  color: #DAC494;
+  margin-top: 10px;
+  padding: 5px;
+  border: 2.2px solid #DAC494;
+  cursor: pointer;
+  transition: background-color 0.5s ease-in-out;
+  width: 90px;
+  font-weight: bold;
+  text-align: center;
+}
+#menu-book:hover{
+  background-color: #DAC494;
+  color: #231F20;
+}
+
+.dropdown {
+    position: relative;
+  }
+  .navbar .book a,.account a{
+    text-decoration: none;
+    color: #DAC494;
+  }
+  .navbar .book{
+    float: right;
+    padding: 0;
+    margin: 0;
+  }
+  .submenu {
+    position: absolute;
+    left: 0;
+    background-color: var(--dark);
+    white-space: nowrap;
+    padding: 1.5em 0;
+    min-width: 16em;
+  
+    /* hide submenus */
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+  .submenu > li > a {
+    padding: 0.8em 1.5em;
+  }
+  .submenu .submenu {
+    left: -100%;
+    top: 0;
+  }
+  .submenu .submenu .submenu {
+    left: -100%;
+    top: 0;
+  }
+  
+  
+  .sidebar > li:hover > a,
+  .submenu > li:hover > a {
+    color: #9d8e6f;
+    letter-spacing: 2px;
+  }
+  .sidebar > li:hover > a {
+    color: #DAC494;
+    font-weight: bold;
+  }
+
+  /* Reveal  */
+  .sidebar > li:hover > a + .submenu,
+  .submenu > li:hover > a + .submenu {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  
+  /* ANIMATE aRROWS */
+  .sidebar > li:hover > a > .arrow,
+  .submenu > li:hover > a > .arrow {
+    transform: rotate(225deg);
+  }
+
+
+
+
+  /* button */
+  .book-button{
+    background-color: #231F20;
+    padding: 10px 40px;
+    color: #DAC494;
+    border: #DAC494 solid 2px;
+    text-decoration: none;
+    transition: background-color 0.5s ease-in-out;
+}
+
+  .book-button:hover{
+    background-color: #DAC494;
+    color: #231F20;
+  }
+
+  .book-button1{
+    background-color: #231F20;
+    padding: 5px 20px;
+    color: #DAC494;
+    border: #DAC494 solid 2px;
+    text-decoration: none;
+    transition: background-color 0.5s ease-in-out;
+}
+
+  .book-button1:hover{
+    background-color: #DAC494;
+    color: #231F20;
+  }
+
+  .book-button2{
+    background-color: #231F20;
+    padding: 15px 40px;
+    color: #DAC494;
+    border: #DAC494 solid 2px;
+    text-decoration: none;
+    transition: background-color 0.5s ease-in-out;
+}
+
+  .book-button2:hover{
+    background-color: #DAC494;
+    color: #231F20;
+  }
+
+@media screen and (max-width: 780px) {
+    .submenu .submenu .submenu {
+      left: -100%;
+      top: 0.5em;
+    }
+    .submenu {
+      min-width: 16em;
+    }
+  
+ 
+    .menu li a {
+      font-size: 1rem;
+    }
+    
+
+header {
+    /*     position: relative; */
+        padding: 1.5em 2em;
+        
+      }
+      
+      .sidebar {
+        flex-flow: column;
+        position: absolute;
+        background: var(--primary);
+        top: 4.55em;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        opacity: 0;
+        transform: scaleY(0);
+        transform-origin: top center;
+        transition: 200ms transform cubic-bezier(0.36, 0.4, 0.42, 1.48) 100ms,
+          100ms opacity ease-in-out;
+        
+        overflow-y: scroll;
+        
+      }
+      .sidebar > li > a {
+        font-size: 1rem;
+        color: var(--light);
+      }
+      .submenu > li > a {
+        font-size: 1rem;
+      }
+    
+      .submenu {
+        top: 0;
+        padding-left: 1.5em;
+        border-left: 0.12em dotted hsla(342, 99%, 45%, 0.95);
+      }
+      .submenu .submenu {
+        left: 0;
+        top: 0;
+      }
+      .submenu .submenu .submenu {
+        left: 0;
+        top: 0;
+      }
+    
+      .sidebar > li:hover > a + .submenu,
+      .submenu > li:hover > a + .submenu {
+        position: relative;
+      }
+    
+      .hamburger {
+        width: 2em;
+        height: 0.25em;
+        display: block;
+        background: var(--light);
+        position: relative;
+        cursor: pointer;
+        transition: 0.2s transform ease-in-out;
+      }
+      .hamburger::after,
+      .hamburger::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        background: inherit;
+        width: inherit;
+        height: inherit;
+    
+        transition: 0.2s transform ease-in-out;
+      }
+    
+      .hamburger::after {
+        top: 0.65em;
+      }
+      .hamburger::before {
+        bottom: 0.65em;
+      }
+    
+      .close::after,
+      .close::before {
+        top: 0;
+        transition: 0.2s transform ease-in-out;
+      }
+      .close::before {
+        display: none;
+      }
+      .close {
+        transform: rotate(45deg);
+        transition: 0.2s transform ease-in-out;
+      }
+      .close::after {
+        transform: rotate(-90deg);
+      }
+      input[type="checkbox"]{
+        width: 100px;
+      }
+      /* reveal menu */
+      input[type="checkbox"]:checked + .sidebar {
+        position: absolute;
+        opacity: 1;
+        transform: scaleY(1);
+        z-index: 9999; 
+      }
+    }

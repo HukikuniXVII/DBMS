@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'playfair';
+    src: url(Playfair_Display/PlayfairDisplay-VariableFont_wght.ttf);
+}
+
+body{
+        font-family: 'playfair';
+        background-color: #F4F5F0;
+    }
+
+.card{
+    margin-bottom: 40px;
+}
+
+  .price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+
+  /* page nav */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+  }
+  
+  
+  .page-link {
+    text-decoration: none;
+    color: white;
+    color: #231F20 !important;
+    padding: 8px 12px;
+    transition: 0.3s;
+  }
+  
+  .page-link:hover {
+    color: #DAC494;
+  
+    background-color: #0056b3;
+  }
+  
+  

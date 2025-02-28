@@ -1,0 +1,79 @@
+*{
+    font-family: 'garamond';
+}
+
+.booking-section {
+    padding: 50px 20px;
+    background-color: #f3f3f3;
+  }
+  .booking-form {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  .booking-form h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2e2a28;
+  }
+  .booking-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  .booking-form input, .booking-form select, .booking-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .booking-form button {
+    transition: background-color 0.5s ease-in-out;
+    background: #231F20;
+    color: #DAC494;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 1px solid #231F20;
+    width: 50%;
+    margin: auto;
+
+  }
+  .booking-form button:hover {
+    background: #DAC494;
+    border: 1px solid #231F20;
+
+    color: #231F20;
+  }
+
+  .time-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* ระยะห่างระหว่างองค์ประกอบ */
+  }
+
+  .payment-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .payment-fields {
+    margin-bottom: 15px;
+  }
+
+  .payment-container input, button {
+    display: block;
+    margin-top: 5px;
+    padding: 8px;
+  }
+
+
+
+
+ 

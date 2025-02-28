@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <!-- 1 RATING/WRITE REVIEW -->
+    <div><center>
+        <h1 style="color: #231F20; padding: 30px;">REVIEWS</h1>
+    </center></div>
+    <div class="container">
+        <div class="stats">
+            <h2>STATS</h2>
+            <p>TOTAL REVIEWS : <span id="totalReviews">0</span></p>
+            <p>AVERAGE RATING : <span id="averageRating">0</span>/5</p>
+            <div class="rating-chart">
+                <div class="rating-bar">
+                    <span>5 <i class="fas fa-star"></i>
+                    </span>
+                    <div class="bar">
+                        <div class="fill" id="rating5" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="rating-bar">
+                    <span>4 <i class="fas fa-star"></i>
+                    </span>
+                    <div class="bar">
+                        <div class="fill" id="rating4" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="rating-bar">
+                    <span>3 <i class="fas fa-star"></i>
+                    </span>
+                    <div class="bar">
+                        <div class="fill" id="rating3" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="rating-bar">
+                    <span>2 <i class="fas fa-star"></i>
+                    </span>
+                    <div class="bar">
+                        <div class="fill" id="rating2" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="rating-bar">
+                    <span>1 <i class="fas fa-star"></i>
+                    </span>
+                    <div class="bar">
+                        <div class="fill" id="rating1" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-form">
+            <h2>WRITE YOUR REVIEW</h2>
+            <form id="reviewForm">
+                <textarea id="reviewText" rows="5" placeholder="Write your review" required></textarea>
+                <div class="stars" id="formStars">
+                    <span data-rating="1">&#9733;</span>
+                    <span data-rating="2">&#9733;</span>
+                    <span data-rating="3">&#9733;</span>
+                    <span data-rating="4">&#9733;</span>
+                    <span data-rating="5">&#9733;</span>
+                </div>
+                <p>RATING : <span id="selectedRating">0</span>/5</p>
+                <button type="submit">REVIEW</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลรีวิว
+        let reviews = [];
+        let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+        // ฟังก์ชันอัปเดตสถิติ
+        function updateStats() {
+            const totalReviews = reviews.length;
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = (totalRating / totalReviews).toFixed(2);
+
+            document.getElementById('totalReviews').textContent = totalReviews;
+            document.getElementById('averageRating').textContent = averageRating;
+
+            // อัปเดตกราฟแท่ง
+            for (let i = 1; i <= 5; i++) {
+                const percentage = (ratingCounts[i] / totalReviews) * 100 || 0;
+                document.getElementById(`rating${i}`).style.width = `${percentage}%`;
+            }
+        }
+
+        // ฟังก์ชันสำหรับการให้คะแนนดาว
+        function setupStars(starContainer, ratingDisplay) {
+            const stars = starContainer.querySelectorAll('span');
+            let selectedRating = 0;
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    selectedRating = star.getAttribute('data-rating');
+                    ratingDisplay.textContent = selectedRating;
+
+                    stars.forEach((s, index) => {
+                        if (index < selectedRating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // ตั้งค่าดาวสำหรับฟอร์มรีวิว
+        const formStars = document.querySelector('#formStars');
+        const selectedRating = document.querySelector('#selectedRating');
+        setupStars(formStars, selectedRating);
+
+        // จัดการฟอร์มรีวิว
+        const reviewForm = document.getElementById('reviewForm');
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const reviewText = document.getElementById('reviewText').value;
+            const rating = parseInt(selectedRating.textContent);
+
+            if (reviewText && rating > 0) {
+                reviews.push({ reviewText, rating });
+                ratingCounts[rating]++;
+                updateStats();
+
+                reviewForm.reset();
+                selectedRating.textContent = 0;
+                formStars.querySelectorAll('span').forEach(star => star.classList.remove('active'));
+            } else {
+                alert('Please fill in the information.');
+            }
+        });
+    </script>
+
+    <!-- 2 -->
+
+    <section id="testimonials">
+
+        <div class="testimonial-heading">
+        </div>
+
+        <div style="margin-top: -100px;" class="testimonial-box-container">
+
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Noah Wood</strong>
+                            <span>27 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                        Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                        aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Noah Wood</strong>
+                            <span>27 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                        Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                        aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Noah Wood</strong>
+                            <span>27 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                        Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                        aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Noah Wood</strong>
+                            <span>27 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
+                        Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
+                        aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+
+            </div>
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Liam mendes</strong>
+                            <span>26 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis? Provident
+                        temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum aliquam tenetur
+                        voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Liam mendes</strong>
+                            <span>26 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis? Provident
+                        temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum aliquam tenetur
+                        voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Liam mendes</strong>
+                            <span>26 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis? Provident
+                        temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum aliquam tenetur
+                        voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+
+            <div class="testimonial-box">
+                <div class="box-top">
+                    <div class="profile">
+                        <div class="profile-img">
+                            <img
+                                src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
+                        </div>
+                        <div class="name-user">
+                            <strong>Liam mendes</strong>
+                            <span>26 January 2025</span>
+                        </div>
+                    </div>
+                    <div class="reviews">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                    </div>
+                </div>
+                <div class="client-comment">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis? Provident
+                        temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum aliquam tenetur
+                        voluptates incidunt blanditiis sed atque cumque.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <br>
+    <!-- PAGE-NAV -->
+    <nav aria-label="Page navigation ">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <br>
+
+    <script src='https://kit.fontawesome.com/c8e4d183c2.js'></script>
+
+
+    <footer>
+        <a class="logo" style="color: #DAC494;     text-shadow: rgb(158, 158, 158) 1px 0 10px;
+font-size: 25px; margin-top: 50px; margin-left: 20px;" href="./index">MASSAGE & SPA</a>
+        <div class="nav">
+            <div class="links">
+                <ul>
+                    <li style=" color: #DAC494; font-size: 18px; font-weight: bold;">Link</li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/service">Services</a></li>
+                    <li><a href="/review">Review</a></li>
+                    <li><a href="/account">Account</a></li>
+                </ul>
+            </div>
+            <div class="social">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Contact</li>
+                    <li>Email : @gmail.com</li>
+                    <li> Phone : 08812345678</li>
+                    <li> Address : 123 kosumpisai</li>
+                </ul>
+            </div>
+
+            <div class="opening">
+                <ul>
+                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Opening Time</li>
+                    <li>Open 7 days a week </li>
+                    <li>10:00 - 00:00</li>
+
+                </ul>
+            </div>
+        </div>
+    </footer>
+{%endblock%}

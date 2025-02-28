@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #343a40;
+            padding: 20px;
+            color: white;
+            position: fixed;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="/ad">Dashboard</a>
+        <a href="/admin-users"> Users</a>
+        <a href="/admin-bookings"> Bookings</a>
+        <a href="/admin-employees"> Staff</a>
+        <a href="/admin-services"> Services</a>
+        <a href="/admin-payments">Payments</a>
+        <a href="/admin-reviews">Reviews</a>
+
+    </div>
+    <div class="content">
+    <div class="card mt-4 p-3">
+        <h1>Manage Staffs</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Staff ID</th>
+                    <th>Name</th>
+                    <th>Speciality</th>
+                    <th>Role</th>
+                    <th>Commission Rate</th>
+                    <th>Phone</th>
+                    <th>Birthdate</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_list %}
+                <tr>
+                    <td>{{ staff.staff_id }}</td>
+                    <td>{{ staff.name }}</td>
+                    <td>{{ staff.speciality }}</td>
+                    <td>{{ staff.role }}</td>
+                    <td>{{ staff.commission_rate }}</td>
+                    <td>{{ staff.phone }}</td>
+                    <td>{{ staff.birthdate }}</td>
+                    <td>{{ staff.status }}</td>
+                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+   
+</body>
+</html>
+

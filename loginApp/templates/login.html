@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- LOGIN -->
+    <section id="book" class="booking-section">
+        <div class="booking-form">
+          <h2>LOG IN</h2>
+          <p style="text-align: center;">Enter your Email and Password</p>
+
+          <!--Message-->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{message.tags}}" role="alert">
+                  {{message}}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+
+          <form method="post">{% csrf_token %}
+
+            <label for="email">Email</label>
+            <input type="text" id="email" placeholder="Enter Email" required name="EMAIL" class="form-control">
+
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter Password" required name="PWD" class="form-control">
+
+            <br>
+
+            <button type="submit">Log In</button>
+          </form>
+          <br>
+          <p style="text-align: center;">Doesn't have an Account? <a style="color: #DAC494;" href="/register">Sign up</a></p>
+
+        </div>
+      </section>
+{% endblock %}
