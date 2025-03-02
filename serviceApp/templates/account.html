@@ -15,6 +15,8 @@
 
 
     <!-- framework -->
+    <liink href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -59,6 +61,7 @@
             background: #dc3545;
             color: #fff;
         }
+
     </style>
 
 </head>
@@ -101,27 +104,100 @@
             <img src="https://www.strasys.uk/wp-content/uploads/2022/02/Depositphotos_484354208_S-300x300.jpg"
                 alt="Profile Picture" class="profile-pic me-3">
             <div>
-                <h4 id="user-name"></h4>
-                <p>Email: <span id="user-email"></span><br>
-                    Address: <span id="user-address"></span><br>
-                    Phone: <span id="user-phone"></span><br>
-                    Birthdate: <span id="user-birthdate"></span></p>
-                <button class="btn btn-primary" id="edit-profile-btn">Edit Profile</button>
+                <h4 id="user-name"><strong>{{ user.first_name}} {{ user.last_name}}</strong></h4>
+                <p><strong>Email : </strong>{{ user.email }}<span id="user-email"></span><br>
+                    <strong>Address : </strong>{{ user.address }}<span id="user-address"></span><br>
+                    <strong>Phone : </strong>{{ user.phone }}<span id="user-phone"></span><br>
+                    <strong>Birthdate : </strong>{{ user.birth_date|date:"d M Y" }}<span id="user-birthdate"></span>
+                </p>
+
+                <button class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog"
+                    aria-labelledby="editProfileModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="id_first_name">First Name</label>
+                                        <input type="text" class="form-control" id="id_first_name" name="first_name"
+                                            value="{{ form.first_name.value }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_last_name">Last Name</label>
+                                        <input type="text" class="form-control" id="id_last_name" name="last_name"
+                                            value="{{ form.last_name.value }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_email">Email</label>
+                                        <input type="email" class="form-control" id="id_email" name="email"
+                                            value="{{ form.email.value }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_phone">Phone</label>
+                                        <input type="text" class="form-control" id="id_phone" name="phone"
+                                            value="{{ form.phone.value }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_birth_date">Birth Date</label>
+                                        <input type="date" class="form-control" id="id_birth_date" name="birth_date"
+                                            value="{{ form.birth_date.value }}">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Booking History -->
-        <h3>My Bookings</h3>
-        <table class="table table-bordered">
+        <h3 class="mt-4">Booking History</h3>
+        <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Booking ID</th>
+                    <th></th>
                     <th>Date & Time</th>
                     <th>Service</th>
+                    <th>Staff</th>
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody id="booking-history">
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ booking.booking_date }}</td>
+                    <td>{{ booking.service.name }}</td>
+                    <td>{{ booking.staff.name }}</td>
+                    <td>
+                        {% if booking.status == "Confirmed" %}
+                        <span class="badge bg-success">ยืนยันแล้ว</span>
+                        {% elif booking.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">รอดำเนินการ</span>
+                        {% else %}
+                        <span class="badge bg-danger">ยกเลิก</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">ไม่มีประวัติการจอง</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
 
@@ -156,7 +232,7 @@
             <div class="social">
                 <ul>
                     <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Contact</li>
-                    <li>Email : @gmail.com</li>
+                    <li>Email : egarbanNongGuem@gmail.com</li>
                     <li> Phone : 08812345678</li>
                     <li> Address : 123 kosumpisai</li>
                 </ul>
@@ -172,25 +248,10 @@
             </div>
         </div>
     </footer>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-            // ดึงข้อมูลผู้ใช้จาก localStorage หรือ API
-            let user = JSON.parse(localStorage.getItem("user")) || {
-                name: "ไม่ระบุ",
-                email: "ไม่ระบุ",
-                phone: "ไม่ระบุ"
-            };
-
-            // แสดงข้อมูลบนหน้าเว็บ
-            document.getElementById("user-name").textContent = user.name;
-            document.getElementById("user-email").textContent = user.email;
-            document.getElementById("user-phone").textContent = user.phone;
-
-            console.log("Page loaded!");
-
-        });
 
         function logout() {
             localStorage.removeItem("user");
@@ -233,7 +294,7 @@
                     });
                 });
 
-            fetch('/api/payment-methods/')
+            fetch('/payment-methods/')
                 .then(response => response.json())
                 .then(data => {
                     if (Array.isArray(data)) {
@@ -245,7 +306,5 @@
         });
     </script>
 </body>
-
-
 
 </html>

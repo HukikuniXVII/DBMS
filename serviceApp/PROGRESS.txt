@@ -1,0 +1,17 @@
+admin
+    -service can delete , edit but can't add
+    -staff can delete , edit but can't add(not appear)
+    -user no data appear
+    -booking error
+    -payment (wait)
+    -review (wait)
+    -time slot (wait)
+
+home
+    -service (wait)
+    -review no data 
+    -booking (/)
+    -login (/)
+    -register (/)
+    -account can edit , logout but can't add payment_method
+

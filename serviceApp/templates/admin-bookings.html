@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
         body {
             display: flex;
         }
+
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -17,22 +19,26 @@
             color: white;
             position: fixed;
         }
+
         .content {
             margin-left: 260px;
             padding: 20px;
             width: 100%;
         }
+
         .sidebar a {
             color: white;
             display: block;
             padding: 10px;
             text-decoration: none;
         }
+
         .sidebar a:hover {
             background: #495057;
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <h2>Admin Panel</h2>
@@ -47,37 +53,74 @@
     <div class="content">
         <div class="card mt-4 p-3">
             <h1>Manage Bookings</h1>
+            
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Booking ID</th>
+                        <th></th>
+                        <th>Email</th>
+                        <th>Date & Time</th>
                         <th>Service</th>
                         <th>Staff</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Payment Method</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for booking in bookings %}
-                    <tr>
-                        <td>{{ booking.id }}</td>
-                        <td>{{ booking.service }}</td>
-                        <td>{{ booking.staff }}</td>
-                        <td>{{ booking.date }}</td>
-                        <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
-                        <td>{{ booking.payment_method }}</td>
-                        <td>{{ booking.additional_notes|default:"-" }}</td>
+                    <tr id="booking-{{ booking.id }}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ booking.customer.email }}</td>
+                        <td>{{ booking.booking_date }}</td>
+                        <td>{{ booking.service.name }}</td>
+                        <td>{{ booking.staff.name }}</td>
                         <td>
-                            <button class="btn btn-success btn-sm">Approve</button>
-                            <button class="btn btn-danger btn-sm">Cancel</button>
+                            <span class="badge 
+                                {% if booking.status == 'Confirmed' %}bg-success
+                                {% elif booking.status == 'Pending' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}" id="status-{{ booking.id }}">
+                                {{ booking.status }}
+                            </span>
                         </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.id }}', 'approve')">Approve</button>
+                            <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking.id }}', 'cancel')">Cancel</button>
+                            
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">ไม่มีประวัติการจอง</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+            <script>
+                function updateBookingStatus(bookingId, status) {
+                    console.log("Booking ID:", bookingId, "Status:", status);  // Debug
+                
+                    if (!bookingId || bookingId === "undefined") {
+                        alert("Error: bookingId is missing");
+                        return;
+                    }
+                
+                    fetch(`/update-booking/${bookingId}/${status}/`, {
+                        method: 'GET',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("อัปเดตสถานะสำเร็จ!");
+                            location.reload();
+                        } else {
+                            alert("Error: " + data.error);
+                        }
+                    })
+                    .catch(error => console.error("Fetch error:", error));
+                }
+            </script>
         </div>
     </div>
 </body>

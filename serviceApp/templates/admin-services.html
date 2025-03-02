@@ -48,6 +48,10 @@
     <div class="content">
     <div class="card mt-4 p-3">
         <h1>Manage Services</h1>
+        
+        <!-- Add Service Button -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addServiceModal">Add Service</button>
+
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -60,21 +64,133 @@
                 </tr>
             </thead>
             <tbody>
+                {% for service in service_list %}
                 <tr>
-                    <td>000000</td>
-                    <td>Service Name</td>
-                    <td>This is Description</td>
-                    <td>Duration</td>
-                    <td>750</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> 
-                        <button class="btn btn-danger btn-sm">Delete</button></td>
+                    <td>{{ service.service_id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.description }}</td>
+                    <td>{{ service.duration }}</td>
+                    <td>{{ service.price }}</td>
+                    <td>
+                        <!-- Edit Button -->
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editServiceModal" 
+                            data-id="{{ service.service_id }}" 
+                            data-name="{{ service.name }}" 
+                            data-description="{{ service.description }}" 
+                            data-duration="{{ service.duration }}" 
+                            data-price="{{ service.price }}">Edit</button> 
+                        <!-- Delete Button -->
+                        <form method="POST" action="{% url 'delete_service' service.service_id %}" style="display:inline;">
+                            {% csrf_token %}
+                        <!--<button type="submit" class="btn btn-danger btn-sm" >Delete</button>
+                         Delete Button with Confirmation -->
+                        <button class="btn btn-danger btn-sm" 
+                                onclick="if(confirm('Are you sure you want to delete this service?')) location.href='{% url 'delete_service' service.service_id %}'">Delete
+                        </button>
+
+                    </form>
+                    </td>   
                 </tr>
-                
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">No services found.</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-   
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'add_service' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="serviceName" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="serviceName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="serviceDescription" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDuration" class="form-label">Duration (hh:mm:ss)</label>
+                        <input type="time" class="form-control" id="serviceDuration" name="duration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="servicePrice" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="servicePrice" name="price" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Service</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editServiceModalLabel">Edit Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'edit_service' %}">
+                    {% csrf_token %}
+                    <input type="hidden" id="editServiceId" name="service_id">
+                    <div class="mb-3">
+                        <label for="editServiceName" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="editServiceName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editServiceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editServiceDescription" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editServiceDuration" class="form-label">Duration (hh:mm:ss)</label>
+                        <input type="time" class="form-control" id="editServiceDuration" name="duration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editServicePrice" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="editServicePrice" name="price" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Update Service</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // เมื่อ Modal Edit เปิดขึ้น
+    var editModal = document.getElementById('editServiceModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // ปุ่มที่เปิด Modal
+        var serviceId = button.getAttribute('data-id');
+        var serviceName = button.getAttribute('data-name');
+        var serviceDescription = button.getAttribute('data-description');
+        var serviceDuration = button.getAttribute('data-duration');
+        var servicePrice = button.getAttribute('data-price');
+
+        // กำหนดค่าลงในฟอร์ม
+        var modalBody = editModal.querySelector('.modal-body');
+        modalBody.querySelector('#editServiceId').value = serviceId;
+        modalBody.querySelector('#editServiceName').value = serviceName;
+        modalBody.querySelector('#editServiceDescription').value = serviceDescription;
+        modalBody.querySelector('#editServiceDuration').value = serviceDuration;
+        modalBody.querySelector('#editServicePrice').value = servicePrice;
+    });
+</script>
+
 </body>
 </html>
 

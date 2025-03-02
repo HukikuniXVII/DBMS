@@ -51,61 +51,35 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Address</th>
-                    <th>Birthdate</th>
-                    <th>Actions</th>
+                    <th></th>
+                    <th>Date & Time</th>
+                    <th>Service</th>
+                    <th>Staff</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
+                {% for booking in bookings %}
                 <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>123 Main St, Cityville</td>
-                    <td>1990-05-15</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ booking.booking_date }}</td>
+                    <td>{{ booking.service.name }}</td>
+                    <td>{{ booking.staff.name }}</td>
+                    <td>
+                        {% if booking.status == "Confirmed" %}
+                        <span class="badge bg-success">ยืนยันแล้ว</span>
+                        {% elif booking.status == "Pending" %}
+                        <span class="badge bg-warning text-dark">รอดำเนินการ</span>
+                        {% else %}
+                        <span class="badge bg-danger">ยกเลิก</span>
+                        {% endif %}
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td>2</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>123 Main St, Cityville</td>
-                    <td>1990-05-15</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
+                    <td colspan="6" class="text-center">ไม่มีประวัติการจอง</td>
                 </tr>
-                <tr>
-                    <td>3</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>123 Main St, Cityville</td>
-                    <td>1990-05-15</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>123 Main St, Cityville</td>
-                    <td>1990-05-15</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>123 Main St, Cityville</td>
-                    <td>1990-05-15</td>
-                    <td><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
