@@ -4,8 +4,8 @@
     <!-- LOGIN -->
     <section id="book" class="booking-section">
         <div class="booking-form">
-          <h2>LOG IN</h2>
-          <p style="text-align: center;">Enter your Email and Password</p>
+          <h2>เข้าสู่ระบบ</h2>
+          <p style="text-align: center;">กรุณากรอกอีเมลและรหัสผ่าน</p>
 
           <!--Message-->
           {% if messages %}
@@ -19,18 +19,18 @@
 
           <form method="post">{% csrf_token %}
 
-            <label for="email">Email</label>
-            <input type="text" id="email" placeholder="Enter Email" required name="EMAIL" class="form-control">
+            <label for="email">อีเมล</label>
+            <input type="text" id="email" placeholder="กรอกอีเมล" required name="EMAIL" class="form-control">
 
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter Password" required name="PWD" class="form-control">
+            <label for="password">รหัสผ่าน</label>
+            <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required name="PWD" class="form-control">
 
             <br>
 
-            <button type="submit">Log In</button>
+            <button type="submit">เข้าสู่ระบบ</button>
           </form>
           <br>
-          <p style="text-align: center;">Doesn't have an Account? <a style="color: #DAC494;" href="/register">Sign up</a></p>
+          <p style="text-align: center;">ยังไม่มีบัญชีใช่หรือไม่? <a style="color: #DAC494;" href="/register">สมัครบัญชีเลย!</a></p>
 
         </div>
       </section>

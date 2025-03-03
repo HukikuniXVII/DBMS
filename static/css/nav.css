@@ -86,7 +86,7 @@ header {
   border: 2.2px solid #DAC494;
   cursor: pointer;
   transition: background-color 0.5s ease-in-out;
-  width: 90px;
+  width: 120px;
   font-weight: bold;
   text-align: center;
 }
