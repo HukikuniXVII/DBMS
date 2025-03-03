@@ -152,24 +152,24 @@
         <div class="step-content active" id="step-1">
             <section id="book" class="booking-section">
                 <div class="booking-form">
-                    <h2>Book Your Appointment</h2>
+                    <h2>ระบบการจอง</h2>
                     <form method="POST">
                         {% csrf_token %}
                         <!-- Staff Dropdown -->
-                        <label for="staff">Select Staff:</label>
+                        <label for="staff">เลือกพนักงาน:</label>
                         <select id="staff" name="staff" required>
-                            <option value="">-- Please Choose a Staff --</option>
+                            <option value="">-- กรุณาเลือก --</option>
                             {% for staff in staff_list %}
                                 <option value="{{ staff.staff_id }}">{{ staff.name }}</option>
                             {% empty %}
-                                <option value="">No Staff Available</option>
+                                <option value="">ไม่มีพนักงาน</option>
                             {% endfor %}
                         </select>
 
                         <!-- Service Dropdown -->
-                        <label for="service">Select Service:</label>
+                        <label for="service">เลือกบริการ:</label>
                         <select id="service" name="service" required>
-                            <option value="">-- Please Choose a Service --</option>
+                            <option value="">-- กรุณาเลือกบริการ --</option>
                             {% for service in service_list %}
                                 <option value="{{ service.service_id }}">{{ service.name }}</option>
                             {% empty %}
@@ -178,19 +178,19 @@
                         </select>
 
                         <!-- Date and Time -->
-                        <label for="date">Date:</label>
+                        <label for="date">วันที่จะมาใช้บริการ:</label>
                         <input type="date" id="date" name="date" required>
 
-                        <label for="start-time">Start Time:</label>
+                        <label for="start-time">เริ่มเวลา:</label>
                         <input type="time" id="start-time" name="start-time" required>
 
-                        <label for="end-time">End Time:</label>
+                        <label for="end-time">สิ้นสุด(อัตโนมัติ):</label>
                         <input type="time" id="end-time" name="end-time" required>
 
-                        <label for="message">Additional Notes:</label>
+                        <label for="message">บันทึกเพิ่มเติม:</label>
                         <textarea id="message" name="message"></textarea>
                     </form>
-                    <button class="next">Next</button>
+                    <button class="next">ถัดไป</button>
                 </div>
             </section>
         </div>
@@ -198,7 +198,7 @@
         <div class="step-content" id="step-2">
             <section id="book" class="booking-section">
                 <div class="booking-form">
-                    <h2>Choose Payment Method</h2>
+                    <h2>ชำระค่ามัดจำในการจอง</h2>
 
                     <form id="payment-form">
                         <div class="payment-container">
@@ -229,9 +229,9 @@
                         </div>
                     </form>
 
-                    <button class="next">Next</button>
+                    <button class="next">ถัดไป</button>
                     <br>
-                    <button class="prev">Previous</button>
+                    <button class="prev">ย้อนกลับ</button>
                 </div>
             </section>
         </div>
@@ -239,14 +239,14 @@
         <div class="step-content" id="step-3">
             <section id="confirmation-section" class="booking-section">
                 <div class="booking-form">
-                    <h2>Confirm Your Booking</h2>
-                    <p><strong>Staff:</strong> <span id="confirm-staff"></span></p>
-                    <p><strong>Service:</strong> <span id="confirm-service"></span></p>
-                    <p><strong>Date:</strong> <span id="confirm-date"></span></p>
-                    <p><strong>Time:</strong> <span id="confirm-time"></span></p>
-                    <p><strong>Payment Method:</strong> <span id="confirm-payments"></span></p>
+                    <h2>สรุปข้อมูลการจอง</h2>
+                    <p><strong>พนักงาน:</strong> <span id="confirm-staff"></span></p>
+                    <p><strong>บริการ:</strong> <span id="confirm-service"></span></p>
+                    <p><strong>วันที่จะมาใช้บริการ:</strong> <span id="confirm-date"></span></p>
+                    <p><strong>เวลา:</strong> <span id="confirm-time"></span></p>
+                    <p><strong>การโอนค่ามัดจำ:</strong> <span id="confirm-payments"></span></p>
                     <p><strong>Payment Details:</strong> <span id="confirm-payment-details"></span></p>
-                    <p><strong>Additional Notes:</strong> <span id="confirm-notes"></span></p>
+                    <p><strong>บันทึกเพิ่มเติม:</strong> <span id="confirm-notes"></span></p>
                     
                     {% if user.is_authenticated %}
                     <button class="next" id="confirm-btn">Confirm Booking</button>
@@ -267,20 +267,21 @@
         <div class="step-content" id="step-4">
             <section id="receipt-section" class="booking-section">
                 <div class="booking-form">
-                    <h2>Booking Receipt</h2>
-                    <p><strong>Receipt Number:</strong> <span id="receipt-number"></span></p>
-                    <p><strong>Staff:</strong> <span id="receipt-staff"></span></p>
-                    <p><strong>Service:</strong> <span id="receipt-service"></span></p>
-                    <p><strong>Date:</strong> <span id="receipt-date"></span></p>
-                    <p><strong>Time:</strong> <span id="receipt-time"></span></p>
-                    <p><strong>Notes:</strong> <span id="receipt-notes"></span></p>
-                    <p><strong>Payment Method:</strong> <span id="receipt-payments"></span></p>
+                    <h2>ใบเสร็จการจอง</h2>
+                    <p color = 'red'>กรุณาบันทึกภาพหน้าจอหน้านี้ก่อนเข้าใช้บริการที่ร้าน</p>
+                    <p><strong>รหัสการจองr:</strong> <span id="receipt-number"></span></p>
+                    <p><strong>พนักงาน:</strong> <span id="receipt-staff"></span></p>
+                    <p><strong>บริการ:</strong> <span id="receipt-service"></span></p>
+                    <p><strong>วันที่จะมาใช้บริการ:</strong> <span id="receipt-date"></span></p>
+                    <p><strong>เวลา:</strong> <span id="receipt-time"></span></p>
+                    <p><strong>บันทึกเพิ่มเติม:</strong> <span id="receipt-notes"></span></p>
+                    <p><strong>การจอง:</strong> <span id="receipt-payments"></span></p>
 
-                    <button onclick="printReceipt()">Print Receipt</button>
+                    <button onclick="printReceipt()">พิมพ์ใบเสร็จ</button>
                     <br>
-                    <button onclick="window.location.href='/'">Main Menu</button>
+                    <button onclick="window.location.href='/'">กลับสู่หน้าแรก</button>
                     <br>
-                    <button onclick="window.location.href='/booking1'">Book More</button>
+                    <button onclick="window.location.href='/booking1'">จองเพิ่ม!</button>
 
                 </div>
             </section>
