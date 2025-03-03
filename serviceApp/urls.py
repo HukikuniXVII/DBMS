@@ -15,7 +15,6 @@ urlpatterns = [
     path('user-data/', views.user_data, name='user_data'),
     path('booking-history/', views.booking_history, name='booking_history'),
     path('account/', views.account_view, name='account'),
-    path('admin-users/', views.admin_users_view, name='admin_users'),
     path('update-booking/<int:booking_id>/<str:status>/', views.update_booking_status, name='update_booking_status'),
 
     path('admin-employees/',views.manage_staffs,   name='manage_staffs'),
@@ -23,6 +22,7 @@ urlpatterns = [
 
     path('staff/edit/<int:staff_id>/', views.edit_staff, name='edit_staff'),
     path('staff/delete/<int:staff_id>/', views.delete_staff, name='delete_staff'),
+    path('add_staff/', views.add_staff, name='add_staff'),
     path('admin-employees/', views.add_staff, name='add_staff'),
 
     #path('admin-services/', views.manage_services, name='manage_services'),
@@ -35,4 +35,14 @@ urlpatterns = [
 
     path('admin-services/', views.manage_services, name='admin-services'),
     path('edit-service/', views.edit_service, name='edit_service'),
+
+    path('edit-profile/<int:user_id>/', views.edit_profile, name='edit_profile'),
+
+    path('admin-users/', views.admin_users_view, name='admin_users'),
+
+    path('edit_user/<int:user_id>/', views.edit_user, name='edit_user'),
+    path('delete_user/<int:user_id>/', views.delete_user, name='delete_user'),
+
+    path('submit_review/', views.submit_review, name='submit_review'),
+
 ]

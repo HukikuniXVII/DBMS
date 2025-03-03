@@ -82,12 +82,7 @@
                         <!-- Delete Button -->
                         <form method="POST" action="{% url 'delete_service' service.service_id %}" style="display:inline;">
                             {% csrf_token %}
-                        <!--<button type="submit" class="btn btn-danger btn-sm" >Delete</button>
-                         Delete Button with Confirmation -->
-                        <button class="btn btn-danger btn-sm" 
-                                onclick="if(confirm('Are you sure you want to delete this service?')) location.href='{% url 'delete_service' service.service_id %}'">Delete
-                        </button>
-
+                            <button class="btn btn-danger btn-sm" onclick="confirmDelete('{{ service.service_id }}')">Delete</button>
                     </form>
                     </td>   
                 </tr>
@@ -120,8 +115,12 @@
                         <textarea class="form-control" id="serviceDescription" name="description" rows="3" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="serviceDuration" class="form-label">Duration (hh:mm:ss)</label>
-                        <input type="time" class="form-control" id="serviceDuration" name="duration" required>
+                        <label for="serviceDuration" class="form-label">Duration (hh:mm)</label>
+                        <!--input type="time" class="form-control" id="serviceDuration" name="duration" required-->
+                        
+                        <input type="time" id="duration_end" name="duration_end" required>
+    
+
                     </div>
                     <div class="mb-3">
                         <label for="servicePrice" class="form-label">Price</label>
@@ -189,6 +188,14 @@
         modalBody.querySelector('#editServiceDuration').value = serviceDuration;
         modalBody.querySelector('#editServicePrice').value = servicePrice;
     });
+
+    function confirmDelete(serviceId) {
+        if (confirm('Are you sure you want to delete this service?')) {
+            window.location.href = `/delete_service/${serviceId}/`;
+        }
+        return false; // ป้องกันการทำงานของ onclick ถ้ากด Cancel
+
+    }
 </script>
 
 </body>

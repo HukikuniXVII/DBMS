@@ -269,7 +269,7 @@
                 <div class="booking-form">
                     <h2>ใบเสร็จการจอง</h2>
                     <p color = 'red'>กรุณาบันทึกภาพหน้าจอหน้านี้ก่อนเข้าใช้บริการที่ร้าน</p>
-                    <p><strong>รหัสการจองr:</strong> <span id="receipt-number"></span></p>
+                    <p><strong>รหัสการจอง:</strong> <span id="receipt-number"></span></p>
                     <p><strong>พนักงาน:</strong> <span id="receipt-staff"></span></p>
                     <p><strong>บริการ:</strong> <span id="receipt-service"></span></p>
                     <p><strong>วันที่จะมาใช้บริการ:</strong> <span id="receipt-date"></span></p>
@@ -388,7 +388,7 @@
                 document.getElementById("confirm-notes").textContent = bookingData.additionalNotes;
             }
 
-            function displayReceipt() {
+            function displayReceipt(bookingData) {
 
                 let staff = document.getElementById('staff');
                 let staff_name = staff.options[staff.selectedIndex].text;
@@ -396,7 +396,9 @@
                 let service = document.getElementById('service');
                 let service_name = service.options[service.selectedIndex].text;
 
-                document.getElementById("receipt-number").textContent = bookingData.receiptNumber;
+                let bookingNumber = generateBookingNumber(bookingData); 
+
+                document.getElementById("receipt-number").textContent = bookingNumber;
                 document.getElementById("receipt-staff").textContent = staff_name;
                 document.getElementById("receipt-service").textContent = service_name;
                 document.getElementById("receipt-date").textContent = bookingData.date;
@@ -441,9 +443,10 @@
                 if (confirmBtn) {
                     confirmBtn.addEventListener("click", function () {
                         console.log("Confirm button clicked");
-                        let bookingNumber = Math.floor(100000 + Math.random() * 900000);
+                        let bookingNumber = generateBookingNumber(bookingData);
+                        console.log(bookingNumber);
                         document.getElementById("receipt-number").innerText = bookingNumber;
-                        displayReceipt();
+                        displayReceipt(bookingData);
                         
                         sendDataToServer();
                         currentStep = 3;
@@ -479,12 +482,31 @@
             });
 
             document.getElementById("confirm-btn").addEventListener("click", function () {
-                let bookingNumber = Math.floor(100000 + Math.random() * 900000);
+                let bookingNumber = generateBookingNumber(bookingData);
+                console.log(bookingNumber);
                 document.getElementById("receipt-number").innerText = bookingNumber;
 
                 currentStep = 3;
                 updateSteps();
             });
+
+            function generateBookingNumber(bookingData) {
+                // จัดเรียงข้อมูลใหม่โดยใช้วันที่, เวลาเริ่ม, เวลาจบ, staffId, และ serviceId
+                let bookingNumber = `${bookingData.date.replace(/-/g, '')}`;  // เอาวันที่มาใช้ (รูปแบบ YYYYMMDD)
+                bookingNumber += `${bookingData.startTime.replace(/:/g, '')}`;  // เวลาเริ่ม (เอาเครื่องหมาย ":" ออก)
+                bookingNumber += `${bookingData.endTime.replace(/:/g, '')}`;    // เวลาจบ (เอาเครื่องหมาย ":" ออก)
+                
+                // ทำให้ staffId และ serviceId มีความยาว 3 หลัก
+                let staffId = bookingData.staff.toString().padStart(3, '0');
+                let serviceId = bookingData.service.toString().padStart(3, '0');
+
+                // รวม staffId และ serviceId เข้าไปใน bookingNumber
+                bookingNumber += staffId;  // staffId ที่มีความยาว 3 หลัก
+                bookingNumber += serviceId;  // serviceId ที่มีความยาว 3 หลัก
+
+                return bookingNumber;
+            }
+
 
             function printReceipt() {
                 let receiptContent = document.getElementById("receipt-section").innerHTML;

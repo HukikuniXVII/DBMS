@@ -52,17 +52,10 @@
 
         <div class="review-form">
             <h2>WRITE YOUR REVIEW</h2>
-            <form id="reviewForm">
-                <textarea id="reviewText" rows="5" placeholder="Write your review" required></textarea>
-                <div class="stars" id="formStars">
-                    <span data-rating="1">&#9733;</span>
-                    <span data-rating="2">&#9733;</span>
-                    <span data-rating="3">&#9733;</span>
-                    <span data-rating="4">&#9733;</span>
-                    <span data-rating="5">&#9733;</span>
-                </div>
-                <p>RATING : <span id="selectedRating">0</span>/5</p>
-                <button type="submit">REVIEW</button>
+            <form method="POST" action="{% url 'submit_review' %}">
+                {% csrf_token %}
+                {{ form.as_p }} 
+                <button type="submit">SUBMIT REVIEW</button>
             </form>
         </div>
     </div>
@@ -130,6 +123,24 @@
                 reviewForm.reset();
                 selectedRating.textContent = 0;
                 formStars.querySelectorAll('span').forEach(star => star.classList.remove('active'));
+            } else {
+                alert('Please fill in the information.');
+            }
+        });
+
+        document.getElementById("reviewForm").addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const reviewText = document.getElementById('reviewText').value;
+            const rating = parseInt(document.getElementById('selectedRating').textContent);
+
+            if (reviewText && rating > 0) {
+                // Fill in the hidden input fields (if necessary)
+                document.getElementById('id_rating').value = rating;
+                document.getElementById('id_comments').value = reviewText;
+                document.getElementById('id_review_date').value = new Date().toISOString().split('T')[0];  // Set today's date
+                
+                document.getElementById("reviewForm").submit();  // Submit the form
             } else {
                 alert('Please fill in the information.');
             }

@@ -3,11 +3,64 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from .forms import EditProfileForm
+from .forms import EditProfileForm,StaffForm,ReviewForm
 from .models import Booking,Staff,Service,Payment
 from loginApp.models import Customer
+from django.contrib import messages
 import json
 
+def submit_review(request):
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            form.save() 
+            return redirect('review.html') 
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'review.html', {'form': form})
+
+def edit_user(request, user_id):
+    user = get_object_or_404(Customer, id=user_id)
+
+    if request.method == 'POST':
+
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.email = request.POST.get('email')
+        user.phone = request.POST.get('phone')
+        user.address = request.POST.get('address')
+        user.birthdate = request.POST.get('birthdate')
+        user.status = request.POST.get('status')
+
+        user.save()
+        return redirect('admin-users')
+
+    return render(request, 'edit_user.html', {'user': user})
+
+def delete_user(request, user_id):
+    user = get_object_or_404(Customer, id=user_id)
+
+    if request.method == 'POST':
+        user.delete()
+        return redirect('admin-users')
+
+    return render(request, 'confirm_delete_user.html', {'user': user})
+
+def edit_profile(request, user_id):
+    user = get_object_or_404(Customer, id=user_id)
+
+    if request.method == "POST":
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+        user.email = request.POST.get("email")
+        user.phone = request.POST.get("phone") 
+        user.birth_date = request.POST.get("birth_date") 
+        user.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect("account") 
+
+    return render(request, "account", {"user": user})
 
 @login_required
 def account_view(request):
@@ -223,6 +276,7 @@ def delete_service(request, service_id):
     service.delete()
     return redirect('admin-services')
 
+'''
 def add_service(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -239,51 +293,52 @@ def add_service(request):
         )
         return redirect('admin-services')
     return render(request,'admin-services')
+'''
 
 def add_staff(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        speciality = request.POST.get('speciality')
-        role = request.POST.get('role')
-        commission_rate = request.POST.get('commission_rate')
-        phone = request.POST.get('phone')
-        birthdate = request.POST.get('birthdate')
-        status = request.POST.get('status')
-        staff = Staff(
+        name = request.POST['name']
+        speciality = request.POST['speciality']
+        role = request.POST['role']
+        commission_rate = request.POST['commission_rate']
+        phone = request.POST['phone']
+        birthdate = request.POST['birthdate']
+        status = request.POST['status']
+
+        new_staff = Staff(
             name=name,
             speciality=speciality,
             role=role,
             commission_rate=commission_rate,
             phone=phone,
             birthdate=birthdate,
-            status=status
+            status=status,
         )
-        staff.save()
-        return redirect('manage_staffs')
-    return render(request, 'add_staff.html')
+        new_staff.save()
+        return redirect('admin-employees')
+    return render(request, 'admin-employees')
 
 def add_service(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-        # รับค่าเวลาจากฟอร์ม
-        duration_start = request.POST.get('duration_start')
-        duration_end = request.POST.get('duration_end')
+
+        duration_start = request.POST.get('duration_start', '').strip()
+        duration_end = request.POST.get('duration_end', '').strip()
         price = request.POST.get('price')
 
-        # แปลงเวลาให้เป็นเวลาที่สามารถเก็บในฐานข้อมูลได้
         start_time = datetime.strptime(duration_start, '%H:%M').time()
         end_time = datetime.strptime(duration_end, '%H:%M').time()
 
-        # สร้างบริการใหม่
+
         Service.objects.create(
             name=name,
             description=description,
-            duration_start=start_time,  # บันทึกเวลาเริ่มต้น
-            duration_end=end_time,  # บันทึกเวลาสิ้นสุด
+            duration_start=start_time,
+            duration_end=end_time,
             price=price
         )
-        return redirect('manage_services')
+        return redirect('admin-employees')
 
     return render(request, 'admin-employees')
 
@@ -306,7 +361,7 @@ def update_booking_status(request, booking_id, status):
 
 def admin_bookings(request):
     bookings = Booking.objects.all().select_related('customer', 'service', 'staff').values(
-        'id', 'customer__email', 'booking_date', 'service__name', 'staff__name', 'status'
+        'service_id', 'customer__email', 'booking_date', 'service__name', 'staff__name', 'status','booking_id'
     )
     return render(request, 'admin-bookings.html', {'bookings': list(bookings)})
 
