@@ -1,152 +1,29 @@
 {% extends 'base.html' %}
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% block content %}
     <!-- SERVICES -->
     <div> <center>
         <h1 style="color: #231F20; margin: 40px;">SERVICES</h1>
     </center></div> 
-    <div class="container">
-       
-       
-        
+    <div class="container"> 
         <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
+            {% for service in services %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top" alt="{{ service.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ service.name }}</h5>
+                            <p class="card-text">{{ service.description }}</p>
+                            <div class="price">
+                                <p>{{ service.price }} / hr</p>
+                                <a href="/booking1/" class="book-button1">BOOK</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://thailand.go.th/uploads/posts/the_post_1691662093.webp" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/225/2023/09/27090743/woman-enjoying-stone-massage.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://thailand.go.th/uploads/posts/the_post_1691662093.webp" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/225/2023/09/27090743/woman-enjoying-stone-massage.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://thailand.go.th/uploads/posts/the_post_1691662093.webp" class="card-img-top"
-                        alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card">
-                    <img src="https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/225/2023/09/27090743/woman-enjoying-stone-massage.jpg"
-                        class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Some quick example text...</p>
-                        <div class="price">
-                            <p>750/hr</p>
-                            <a href="/booking1" class="book-button1">BOOK</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
         </div>
-
     </div>
     <!-- page nav -->
     <nav aria-label="Page navigation ">

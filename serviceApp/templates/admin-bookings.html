@@ -57,7 +57,7 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th></th>
+                        <th>Booking ID</th>
                         <th>Email</th>
                         <th>Date & Time</th>
                         <th>Service</th>
@@ -69,11 +69,12 @@
                 <tbody>
                     {% for booking in bookings %}
                     <tr id="booking-{{ booking.id }}">
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ booking.customer.email }}</td>
+                        <td>{{ booking.booking_id }}</td>
+                        <td>{{ booking.customer__email }}</td>
                         <td>{{ booking.booking_date }}</td>
-                        <td>{{ booking.service.name }}</td>
-                        <td>{{ booking.staff.name }}</td>
+                        <td>{{ booking.service__name }}</td>
+                        <td>{{ booking.staff__name }}</td>
+
                         <td>
                             <span class="badge 
                                 {% if booking.status == 'Confirmed' %}bg-success
@@ -83,9 +84,8 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'approve')">Approve</button>
-                            <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'cancel')">Cancel</button>
-                            
+                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Confirmed')" >Confirm</button>
+                            <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Canceled')">Cancel</button>
                         </td>
                     </tr>
                     {% empty %}
@@ -98,13 +98,11 @@
 
             <script>
                 function updateBookingStatus(bookingId, status) {
-                    console.log("Booking ID:", bookingId, "Status:", status);  // Debug
-                
                     if (!bookingId || bookingId === "undefined") {
                         alert("Error: bookingId is missing");
                         return;
                     }
-                
+            
                     fetch(`/update-booking/${bookingId}/${status}/`, {
                         method: 'GET',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -112,7 +110,29 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert("อัปเดตสถานะสำเร็จ!");
+                            alert("อัปเดตสถานะการจองสำเร็จ!");
+                            location.reload();
+                        } else {
+                            alert("Error: " + data.error);
+                        }
+                    })
+                    .catch(error => console.error("Fetch error:", error));
+                }
+            
+                function updatePaymentStatus(paymentId, status) {
+                    if (!paymentId || paymentId === "undefined") {
+                        alert("Error: paymentId is missing");
+                        return;
+                    }
+            
+                    fetch(`/update-payment/${paymentId}/${status}/`, {
+                        method: 'GET',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("อัปเดตสถานะการชำระเงินสำเร็จ!");
                             location.reload();
                         } else {
                             alert("Error: " + data.error);
@@ -121,6 +141,7 @@
                     .catch(error => console.error("Fetch error:", error));
                 }
             </script>
+            
         </div>
     </div>
 </body>

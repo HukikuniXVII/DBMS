@@ -1,0 +1,25 @@
+admin
+    ✅-booking 
+    ✅-payment (calculate amount)
+    ✅-review
+    -time slot (wait)
+    ✅-user
+    ✅-staff
+    ✅-service (fix time slot)
+    ✅-recipt but not insert into payment_id
+    
+    ++ login page for admin ++
+
+home
+    ✅-service
+    ✅-review 
+    ✅-booking 
+    ✅-login 
+    ✅register 
+    -account (x payment_method) 
+
+
+fix review model set time default to date_today
+fix booking model add start and end_time
+แก้ Service Duration ให้เป็น Integer จำนวนนาทีของบริการ
+เพิ่ม amount ใน admin-payment

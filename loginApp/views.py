@@ -57,7 +57,7 @@ def register_view(request):
             return redirect('/login')
 
         except Exception as e:
-            messages.error(request, f"เกิดข้อผิดพลาดบางประการ: {traceback.format_exc()}")
+            messages.error(request, f"เกิดข้อผิดพลาดบางประการ")
             return redirect('/register')
 
     return render(request, 'register.html')

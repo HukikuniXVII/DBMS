@@ -3,12 +3,8 @@ from django.urls import path,include
 from serviceApp import views
 
 urlpatterns = [
-    path('service/',views.service),
-    path('review/',views.review),
-    path('admin-bookings/',views.admin_bookings, name='admin-bookings'),
     path('ad/',views.a_dashboard),
-    path('admin-payments/',views.a_playment),
-    path('admin-reviews/',views.a_review),
+
     path('save-booking/', views.save_booking),
     path('booking1/', views.booking_view, name='booking'),
     path('payment-methods/', views.payment_methods, name='payment_methods'),
@@ -16,20 +12,15 @@ urlpatterns = [
     path('booking-history/', views.booking_history, name='booking_history'),
     path('account/', views.account_view, name='account'),
     path('update-booking/<int:booking_id>/<str:status>/', views.update_booking_status, name='update_booking_status'),
+    path('get-service-duration/<int:service_id>/', views.get_service_duration, name='get_service_duration'),
 
-    path('admin-employees/',views.manage_staffs,   name='manage_staffs'),
+
     path('admin-services/', views.manage_services),
+    
 
-    path('staff/edit/<int:staff_id>/', views.edit_staff, name='edit_staff'),
-    path('staff/delete/<int:staff_id>/', views.delete_staff, name='delete_staff'),
-    path('add_staff/', views.add_staff, name='add_staff'),
-    path('admin-employees/', views.add_staff, name='add_staff'),
-
-    #path('admin-services/', views.manage_services, name='manage_services'),
-    path('add-service/', views.add_service, name='add_service'),
 
     path('admin-services/', views.manage_services, name='manage_services'),
-    path('add-service/', views.add_service, name='add_service'),
+
     path('edit-service/<int:service_id>/', views.edit_service, name='edit_service'),
     path('delete-service/<int:service_id>/', views.delete_service, name='delete_service'), 
 
@@ -40,9 +31,33 @@ urlpatterns = [
 
     path('admin-users/', views.admin_users_view, name='admin_users'),
 
-    path('edit_user/<int:user_id>/', views.edit_user, name='edit_user'),
-    path('delete_user/<int:user_id>/', views.delete_user, name='delete_user'),
-
+    # REVIEW home
+    path('review/',views.review),
     path('submit_review/', views.submit_review, name='submit_review'),
+    path("get_review_stats/", views.get_review_stats, name="get_review_stats"),
+    path("get_reviews/", views.get_reviews, name="get_reviews"),
 
+    # SERVICE home
+    path('service/', views.service_list, name='services_list'),
+
+    # REVIEW admin
+    path('admin-reviews/', views.manage_reviews, name='admin_reviews'),
+
+    # BOOKING admin
+    path('admin-bookings/',views.admin_bookings, name='admin-bookings'),
+
+    # PAYMENT admin
+    path('admin-payments/',views.admin_payments, name='admin-payments'),
+
+    # SERVICE admin
+    path('add-service/', views.add_service, name='add_service'),
+
+    # EMPLOYEES admin
+    path('admin-employees-add-staff/', views.add_staff,     name='add_staff'),
+    path('admin-employees/',views.manage_staffs,  name='manage_staffs'),
+    path('staff/edit/<int:staff_id>/', views.edit_staff, name='edit_staff'),
+    path('staff/delete/<int:staff_id>/', views.delete_staff, name='delete_staff'),
+
+    # USER admin
+    path('delete_user/<int:user_id>/', views.delete_user, name='delete_user'),
 ]

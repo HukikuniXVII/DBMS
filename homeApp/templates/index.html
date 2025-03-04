@@ -56,62 +56,24 @@
         </center>
 
         <br>
-        <div class="container2">
+        <div class="container"> 
             <div class="row">
-                <!-- SERVICE ADDED -->
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top"
-                            alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text...</p>
-                            <div class="price">
-                                <p>750/hr</p>
-                                <a href="/booking1" class="book-button1">BOOK</a>
+                {% for service in services %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top" alt="{{ service.name }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ service.name }}</h5>
+                                <p class="card-text">{{ service.description }}</p>
+                                <div class="price">
+                                    <p>{{ service.price }} / hr</p>
+                                    <a href="/booking1/" class="book-button1">BOOK</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="https://thailand.go.th/uploads/posts/the_post_1691662093.webp" class="card-img-top"
-                            alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text...</p>
-                            <div class="price">
-                                <p>750/hr</p>
-                                <a href="/booking1" class="book-button1">BOOK</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/225/2023/09/27090743/woman-enjoying-stone-massage.jpg"
-                            class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text...</p>
-                            <div class="price">
-                                <p>750/hr</p>
-                                <a href="/booking1" class="book-button1">BOOK</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <br>
-
-
+                {% endfor %}
             </div>
-
-
-            <br>
-
         </div>
         <center><a href="/service" style="margin-top: 20px;" class="book-button2">ดูบริการทั้งหมดที่มี</a>
 
@@ -122,41 +84,18 @@
     <div class="review">
         <hr class="hr1" style=" border-bottom: #DAC494 3px solid; margin: 10px; width: 42.5%; float: left;">
         <hr class="hr1" style=" border-bottom: #DAC494 3px solid; margin: 10px; width: 43.5%; float: right;">
-        <h2 style=" color: #DAC494; width: 10%; margin: 0 auto;"> รีวิว</h2>
+        <div style="display: flex; justify-content: center;">
+            <h2 style="color: #DAC494; width: 10%;">รีวิว</h2>
+        </div>
+        
 
         <section id="testimonials">
 
             <div class="testimonial-heading">
-                <h1 style="color: #231F20;">รีวิว</h1>
             </div>
-
+    
             <div style="margin-top: -100px;" class="testimonial-box-container">
-
-                <div class="testimonial-box">
-                    <div class="box-top">
-                        <div class="profile">
-                            <div class="profile-img">
-                                <img
-                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
-                            </div>
-                            <div class="name-user">
-                                <strong>คิม จอง อึน</strong>
-                                <span>27 มกราคม 2025</span>
-                            </div>
-                        </div>
-                        <div class="reviews">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="client-comment">
-                        <p>ไม่ไหวแล้วววววว อู๊ยยยยยยยยยยย</p>
-                    </div>
-                </div>
-
+    
                 <div class="testimonial-box">
                     <div class="box-top">
                         <div class="profile">
@@ -183,69 +122,61 @@
                             aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
                     </div>
                 </div>
-                <div class="testimonial-box">
-                    <div class="box-top">
-                        <div class="profile">
-                            <div class="profile-img">
-                                <img
-                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
-                            </div>
-                            <div class="name-user">
-                                <strong>Noah Wood</strong>
-                                <span>27 January 2025</span>
-                            </div>
-                        </div>
-                        <div class="reviews">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="client-comment">
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
-                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
-                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
-                    </div>
-                </div>
-                <div class="testimonial-box">
-                    <div class="box-top">
-                        <div class="profile">
-                            <div class="profile-img">
-                                <img
-                                    src="https://img.freepik.com/premium-vector/portrait-beautiful-women-round-frame-avatar-female-character-isolated-white-background_559729-210.jpg?w=740" />
-                            </div>
-                            <div class="name-user">
-                                <strong>Noah Wood</strong>
-                                <span>27 January 2025</span>
-                            </div>
-                        </div>
-                        <div class="reviews">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                    <div class="client-comment">
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, quaerat quis?
-                            Provident temporibus architecto asperiores nobis maiores nisi a. Quae doloribus ipsum
-                            aliquam tenetur voluptates incidunt blanditiis sed atque cumque.</p>
-                    </div>
-                </div>
-
             </div>
-            <br>
-            <br>
         </section>
-        <script src='https://kit.fontawesome.com/c8e4d183c2.js'></script>
-        <center><a href="/review" class="book-button2">ดูรีวิวทั้งหมด</a>
-        </center>
         <br>
-        <hr class="hr1" style=" border-bottom: #DAC494 3px solid; ">
-
+    
+        <script>
+            function loadReviews() {
+                fetch("/get_reviews/")
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("📥 Reviews Data:", data);
+                        const reviewContainer = document.querySelector(".testimonial-box-container");
+                        reviewContainer.innerHTML = ""; 
+    
+                        data.reviews.forEach(review => {
+                            const reviewHTML = `
+                                <div class="testimonial-box">
+                                    <div class="box-top">
+                                        <div class="profile">
+                                            <div class="profile-img">
+                                                <img src="${review.profile_img}" />
+                                            </div>
+                                            <div class="name-user">
+                                                <strong>${review.name}</strong>  <!-- แสดงชื่อผู้ใช้ -->
+                                                <span>${review.date}</span>
+                                            </div>
+                                        </div>
+                                        <div class="reviews">
+                                            ${generateStars(review.rating)}
+                                        </div>
+                                    </div>
+                                    <div class="client-comment">
+                                        <p>${review.comment}</p>
+                                    </div>
+                                </div>
+                            `;
+                            reviewContainer.innerHTML += reviewHTML;
+                        });
+                    })
+                    .catch(error => console.error("Error fetching reviews:", error));
+            }
+            function generateStars(rating) {
+                let starsHTML = "";
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rating) {
+                        starsHTML += '<i class="fas fa-star"></i>';
+                    } else {
+                        starsHTML += '<i class="far fa-star"></i>';
+                    }
+                }
+                return starsHTML;
+            }
+    
+            // โหลดรีวิวเมื่อหน้าเว็บโหลดเสร็จ
+            document.addEventListener("DOMContentLoaded", loadReviews);
+        </script>
     </div>
 
     <!-- STAFF -->

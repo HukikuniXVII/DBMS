@@ -43,41 +43,38 @@
         <a href="/admin-services"> Services</a>
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
-
     </div>
     <div class="content">
-    <div class="card mt-4 p-3">
-        <h1>Manage Payments</h1>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Review ID</th>
-                    <th>Customer ID</th>
-                    <th>Service ID </th>
-                    <th>Booking ID</th>
-                    <th>Rating</th>
-                    <th>Comments</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>00000</td>
-                    <td>1</td>
-                    <td>00000</td>
-                    <td>00000</td>
-                    <td>4</td>
-                    <td>Very good.</td>
-                    <td>2025-01-01</td>
-                    <td> <button class="btn btn-danger btn-sm">Delete</button></td>
-                </tr>
-                
-            </tbody>
-        </table>
+        <div class="card mt-4 p-3">
+            <h1>Manage Reviews</h1>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th style="width:8%">Review ID</th>
+                        <th style="width:5%">Rating</th>
+                        <th style="width:60%">Comment</th>
+                        <th style="width:10%">Review Date</th>
+                        <th  style="width:10%">User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews_list %}
+                    <tr>
+                        <td>{{ review.review_id }}</td>
+                        <td>{{ review.rating }}</td>
+                        <td>{{ review.comments }}</td>
+                        <td>{{ review.review_date }}</td>
+                        <td>{{ review.user.username }}</td> 
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No reviews found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-   
 </body>
 </html>
 

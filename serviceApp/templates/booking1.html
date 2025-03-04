@@ -184,9 +184,6 @@
                         <label for="start-time">เริ่มเวลา:</label>
                         <input type="time" id="start-time" name="start-time" required>
 
-                        <label for="end-time">สิ้นสุด(อัตโนมัติ):</label>
-                        <input type="time" id="end-time" name="end-time" required>
-
                         <label for="message">บันทึกเพิ่มเติม:</label>
                         <textarea id="message" name="message"></textarea>
                     </form>
@@ -319,51 +316,81 @@
                 });
             }
 
-            function validateStep(step) {
-                console.log("Validating step:", step);
-                
-                if (step === 0) {
-                    let staff = document.getElementById('staff').value;
-                    let service = document.getElementById('service').value;
-                    let date = document.getElementById("date").value;
-                    let startTime = document.getElementById("start-time").value;
-                    let endTime = document.getElementById("end-time").value;
-
-                    if (!staff || !service || !date || !startTime || !endTime) {
-                        alert("Please fill in all fields before proceeding.");
-                        return false;
-                    }
-
-                    bookingData.staff = staff;
-                    bookingData.service = service;
-                    bookingData.date = date;
-                    bookingData.startTime = startTime;
-                    bookingData.endTime = endTime;
-                    bookingData.additionalNotes = document.getElementById("message").value;
-                } 
-
-                else if (step === 1) {
-                    let paymentMethod = document.querySelector('input[name="payment-method"]:checked');
-                    
-                    if (!paymentMethod) {
-                        alert("Please select a payment method.");
-                        return false;
-                    }
-
-                    bookingData.paymentMethod = paymentMethod.value;
-
-                    if (bookingData.paymentMethod === 'credit card') {
-                        bookingData.cardNumber = document.getElementById("card-number").value;
-                        bookingData.expiryDate = document.getElementById("expiry-date").value;
-                        bookingData.cvv = document.getElementById("cvv").value;
-                    } else if (bookingData.paymentMethod === 'bank transfer') {
-                        bookingData.bankName = document.getElementById("bank-name").value;
-                        bookingData.accountNumber = document.getElementById("account-number").value;
-                    }
+                function getServiceDuration(serviceId) {
+                    return fetch(`/get-service-duration/${serviceId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.duration) {
+                                return data.duration;  
+                            } else {
+                                alert("Error: " + data.error);
+                                return null;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching service duration:", error);
+                            return null;
+                        });
                 }
 
-                return true;
-            }
+                function validateStep(step) {
+                    console.log("Validating step:", step);
+                    
+                    if (step === 0) {
+                        let staff = document.getElementById('staff').value;
+                        let service = document.getElementById('service').value;
+                        let date = document.getElementById("date").value;
+                        let startTime = document.getElementById("start-time").value;
+
+                        if (!staff || !service || !date || !startTime) {
+                            alert("Please fill in all fields before proceeding.");
+                            return false;
+                        }
+
+                        bookingData.staff = staff;
+                        bookingData.service = service;
+                        bookingData.date = date;
+                        bookingData.startTime = startTime;
+                        bookingData.additionalNotes = document.getElementById("message").value;
+
+                        // ดึง duration ของ service จาก API หรือ HTML
+                        getServiceDuration(service).then(duration => {
+                            if (duration) {
+                                // คำนวณเวลาสิ้นสุด
+                                let startTimeObj = new Date(`1970-01-01T${startTime}:00Z`);  // เปลี่ยน startTime เป็น UTC
+                                let endTimeObj = new Date(startTimeObj.getTime() + duration * 60000);  // duration * 60000 คือการแปลงนาทีเป็นมิลลิวินาที
+
+                                // แสดงเวลา endTime ที่คำนวณ
+                                let endTime = endTimeObj.toISOString().substr(11, 5);  
+                                console.log("Calculated End Time:", endTime);
+
+                                bookingData.endTime = endTime;  
+                            }
+                        });
+                        
+                    } else if (step === 1) { // แก้ไขเป็น else if
+                        let paymentMethod = document.querySelector('input[name="payment-method"]:checked');
+                        
+                        if (!paymentMethod) {
+                            alert("Please select a payment method.");
+                            return false;
+                        }
+
+                        bookingData.paymentMethod = paymentMethod.value;
+
+                        if (bookingData.paymentMethod === 'credit card') {
+                            bookingData.cardNumber = document.getElementById("card-number").value;
+                            bookingData.expiryDate = document.getElementById("expiry-date").value;
+                            bookingData.cvv = document.getElementById("cvv").value;
+                        } else if (bookingData.paymentMethod === 'bank transfer') {
+                            bookingData.bankName = document.getElementById("bank-name").value;
+                            bookingData.accountNumber = document.getElementById("account-number").value;
+                        }
+                    }
+
+                    return true;
+                }
+
 
             function displayConfirmation() {
 
