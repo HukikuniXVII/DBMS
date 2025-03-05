@@ -111,7 +111,7 @@
 
         <nav class="navbar">
             <div href="/" class="logo">
-                <h2>แบงค์ นวดด้วยปาก</h2>
+                <h2>ชื่อร้าน</h2>
             </div>
 
             <label for="input-hamburger" class="hamburger">
@@ -199,29 +199,18 @@
 
                     <form id="payment-form">
                         <div class="payment-container">
-                            <label><input type="radio" name="payment-method" value="credit card" id="credit-card" class="payment-method"> Credit Card</label>
-                            <label><input type="radio" name="payment-method" value="bank transfer" id="bank-transfer" class="payment-method"> Bank Transfer</label>
-                            <label><input type="radio" name="payment-method" value="cash" id="cash" class="payment-method"> Cash</label>
+                            <label><input type="radio" name="payment-method" value="qr-code" id="qr-code" class="payment-method"> ชำระผ่าน QR Code</label>
+                            <label><input type="radio" name="payment-method" value="cash" id="cash" class="payment-method"> ชำระเงินสด</label>
 
-                            <div id="credit-card-fields" class="payment-fields" style="display: none;">
-                                <label for="card-number">Card Number:</label>
-                                <input type="text" id="card-number" name="card-number" placeholder="1234 5678 9012 3456" required>
-                                <label for="expiry-date">Expiry Date:</label>
-                        
-                                <input type="month" id="expiry-date" name="expiry-date" required>
-                                <label for="cvv">CVV:</label>
-                                <input type="text" id="cvv" name="cvv" placeholder="123" required>
-                            </div>
-
-                            <div id="bank-transfer-fields" class="payment-fields" style="display: none;">
-                                <label for="bank-name">Bank Name:</label>
-                                <input type="text" id="bank-name" name="bank-name" placeholder="Bank Name" required>
-                                <label for="account-number">Account Number:</label>
-                                <input type="text" id="account-number" name="account-number" placeholder="Account Number" required>
+                            <div id="qr-code-fields" class="payment-fields" style="display: none;">
+                                <p>กรุณาสแกน QR Code ด้านล่างเพื่อชำระค่ามัดจำ</p>
+                                <img src="/static/images/qr-code.jpg" alt="QR Code" width="200">
+                                <label for="payment-proof">อัปโหลดหลักฐานการชำระเงิน:</label>
+                                <input type="file" id="payment-proof" name="payment-proof" accept="image/*" required>
                             </div>
 
                             <div id="cash-fields" class="payment-fields" style="display: none;">
-                                <p>Please pay the amount in cash at the store during your visit.</p>
+                                <p>กรุณาชำระเงินสดที่ร้านในวันที่มาใช้บริการ</p>
                             </div>
                         </div>
                     </form>
@@ -298,11 +287,6 @@
                 startTime: '',
                 endTime: '',
                 paymentMethod: '',
-                cardNumber: '',
-                expiryDate: '',
-                cvv: '',
-                bankName: '',
-                accountNumber: '',
                 additionalNotes: ''
             };
 
@@ -353,14 +337,11 @@
                         bookingData.startTime = startTime;
                         bookingData.additionalNotes = document.getElementById("message").value;
 
-                        // ดึง duration ของ service จาก API หรือ HTML
                         getServiceDuration(service).then(duration => {
                             if (duration) {
-                                // คำนวณเวลาสิ้นสุด
-                                let startTimeObj = new Date(`1970-01-01T${startTime}:00Z`);  // เปลี่ยน startTime เป็น UTC
-                                let endTimeObj = new Date(startTimeObj.getTime() + duration * 60000);  // duration * 60000 คือการแปลงนาทีเป็นมิลลิวินาที
+                                let startTimeObj = new Date(`1970-01-01T${startTime}:00Z`); 
+                                let endTimeObj = new Date(startTimeObj.getTime() + duration * 60000);
 
-                                // แสดงเวลา endTime ที่คำนวณ
                                 let endTime = endTimeObj.toISOString().substr(11, 5);  
                                 console.log("Calculated End Time:", endTime);
 
@@ -368,24 +349,14 @@
                             }
                         });
                         
-                    } else if (step === 1) { // แก้ไขเป็น else if
+                    } else if (step === 1) { 
                         let paymentMethod = document.querySelector('input[name="payment-method"]:checked');
                         
                         if (!paymentMethod) {
                             alert("Please select a payment method.");
                             return false;
                         }
-
                         bookingData.paymentMethod = paymentMethod.value;
-
-                        if (bookingData.paymentMethod === 'credit card') {
-                            bookingData.cardNumber = document.getElementById("card-number").value;
-                            bookingData.expiryDate = document.getElementById("expiry-date").value;
-                            bookingData.cvv = document.getElementById("cvv").value;
-                        } else if (bookingData.paymentMethod === 'bank transfer') {
-                            bookingData.bankName = document.getElementById("bank-name").value;
-                            bookingData.accountNumber = document.getElementById("account-number").value;
-                        }
                     }
 
                     return true;
@@ -396,7 +367,6 @@
 
                 let staff = document.getElementById('staff');
                 let staff_name = staff.options[staff.selectedIndex].text;
-
                 let service = document.getElementById('service');
                 let service_name = service.options[service.selectedIndex].text;
 
@@ -405,13 +375,6 @@
                 document.getElementById("confirm-date").textContent = bookingData.date;
                 document.getElementById("confirm-time").textContent = `${bookingData.startTime} - ${bookingData.endTime}`;
                 document.getElementById("confirm-payments").textContent = bookingData.paymentMethod;
-
-                if (bookingData.paymentMethod === 'credit card') {
-                    document.getElementById("confirm-payment-details").textContent = `Card Number: ${bookingData.cardNumber}, Expiry Date: ${bookingData.expiryDate}`;
-                } else if (bookingData.paymentMethod === 'bank transfer') {
-                    document.getElementById("confirm-payment-details").textContent = `Bank Name: ${bookingData.bankName}, Account Number: ${bookingData.accountNumber}`;
-                }
-
                 document.getElementById("confirm-notes").textContent = bookingData.additionalNotes;
             }
 
@@ -419,10 +382,8 @@
 
                 let staff = document.getElementById('staff');
                 let staff_name = staff.options[staff.selectedIndex].text;
-
                 let service = document.getElementById('service');
                 let service_name = service.options[service.selectedIndex].text;
-
                 let bookingNumber = generateBookingNumber(bookingData); 
 
                 document.getElementById("receipt-number").textContent = bookingNumber;
@@ -446,7 +407,6 @@
                             if (currentStep === 2) {
                                 displayConfirmation();
                             }
-                            
                         }
                     } else {
                         console.log("Validation failed at step:", currentStep);
@@ -498,10 +458,8 @@
                         field.style.display = 'none';
                     });
 
-                    if (selectedPaymentMethod === 'credit card') {
-                        document.getElementById('credit-card-fields').style.display = 'block';
-                    } else if (selectedPaymentMethod === 'bank transfer') {
-                        document.getElementById('bank-transfer-fields').style.display = 'block';
+                    if (selectedPaymentMethod === 'qr-code') {
+                        document.getElementById('qr-code-fields').style.display = 'block';
                     } else if (selectedPaymentMethod === 'cash') {
                         document.getElementById('cash-fields').style.display = 'block';
                     }
@@ -518,22 +476,17 @@
             });
 
             function generateBookingNumber(bookingData) {
-                // จัดเรียงข้อมูลใหม่โดยใช้วันที่, เวลาเริ่ม, เวลาจบ, staffId, และ serviceId
-                let bookingNumber = `${bookingData.date.replace(/-/g, '')}`;  // เอาวันที่มาใช้ (รูปแบบ YYYYMMDD)
-                bookingNumber += `${bookingData.startTime.replace(/:/g, '')}`;  // เวลาเริ่ม (เอาเครื่องหมาย ":" ออก)
-                bookingNumber += `${bookingData.endTime.replace(/:/g, '')}`;    // เวลาจบ (เอาเครื่องหมาย ":" ออก)
+                let bookingNumber = `${bookingData.date.replace(/-/g, '')}`;
+                bookingNumber += `${bookingData.startTime.replace(/:/g, '')}`; 
                 
-                // ทำให้ staffId และ serviceId มีความยาว 3 หลัก
                 let staffId = bookingData.staff.toString().padStart(3, '0');
                 let serviceId = bookingData.service.toString().padStart(3, '0');
 
-                // รวม staffId และ serviceId เข้าไปใน bookingNumber
-                bookingNumber += staffId;  // staffId ที่มีความยาว 3 หลัก
-                bookingNumber += serviceId;  // serviceId ที่มีความยาว 3 หลัก
+                bookingNumber += staffId; 
+                bookingNumber += serviceId;
 
                 return bookingNumber;
             }
-
 
             function printReceipt() {
                 let receiptContent = document.getElementById("receipt-section").innerHTML;
@@ -549,36 +502,38 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRFToken": getCSRFToken() // Ensure CSRF token is sent if needed
+                        "X-CSRFToken": getCSRFToken()
                     },
                     body: JSON.stringify({
-                        staff: bookingData.staff,  // ID ของ staff
-                        service: bookingData.service,  // ID ของ service
-                        date: bookingData.date,  // วันที่
-                        startTime: bookingData.startTime,  // เวลาเริ่มต้น
-                        endTime: bookingData.endTime,  // เวลาสิ้นสุด
-                        paymentMethod: bookingData.paymentMethod,  // วิธีการชำระเงิน
-                        cardNumber: bookingData.cardNumber || '',  // หมายเลขบัตร (ถ้ามี)
-                        expiryDate: bookingData.expiryDate || '',  // วันหมดอายุของบัตร (ถ้ามี)
-                        cvv: bookingData.cvv || '',  // CVV (ถ้ามี)
-                        bankName: bookingData.bankName || '',  // ชื่อธนาคาร (ถ้ามี)
-                        accountNumber: bookingData.accountNumber || '',  // เลขที่บัญชี (ถ้ามี)
-                        additionalNotes: bookingData.additionalNotes || '',  // หมายเหตุเพิ่มเติม (ถ้ามี)
-                        walkIn: bookingData.walkIn || false,  // สถานะ walk-in
-                        commissionAmount: bookingData.commissionAmount || 0.00,  // จำนวนค่าคอมมิชชั่น
-                        tempCustomer: bookingData.tempCustomer || null  // ลูกค้าชั่วคราว (ถ้ามี)
+                        staff: bookingData.staff,
+                        service: bookingData.service, 
+                        date: bookingData.date, 
+                        startTime: bookingData.startTime, 
+                        endTime: bookingData.endTime, 
+                        paymentMethod: bookingData.paymentMethod, 
+                        additionalNotes: bookingData.additionalNotes || '', 
+                        walkIn: bookingData.walkIn || false, 
+                        commissionAmount: bookingData.commissionAmount || 0.00,
+                        tempCustomer: bookingData.tempCustomer || null 
                     })
                 })
-                .then(response => response.json())  // แปลง response เป็น JSON
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || "Unknown error occurred.");
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.status === "success") {
-                        // อัพเดต UI ด้วย booking_id ที่ได้รับ
+                        console.error("Error saving successfully", data.booking_id);
                     } else {
                         console.error("Error saving booking", data.message);
                     }
                 })
                 .catch(error => {
-                    console.error("Error saving booking", error);  // ตรวจสอบข้อผิดพลาดที่เกิดขึ้น
+                    console.error("Error saving booking", error);
                 });
             }
 
@@ -586,6 +541,7 @@
                 return document.querySelector('[name=csrfmiddlewaretoken]').value;
             }
         </script>
+    
     </div>
 </body>
 </html>

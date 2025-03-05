@@ -42,7 +42,7 @@ class TimeSlot(models.Model):
     ]
     slot_id = models.AutoField(primary_key=True)
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
-    slot_date = models.DateField(null=True, blank=True, default=datetime.date(1970, 1, 1))
+    slot_date = models.DateField(null=True, blank=True, default=datetime.date.today)
     start_time = models.TimeField()
     end_time = models.TimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='available')
@@ -59,7 +59,13 @@ class Payment(models.Model):
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
     payment_date = models.DateField(null=True, blank=True, default=datetime.date(1970, 1, 1))
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=10, choices=[('Cash', 'Cash'), ('Transfer', 'Transfer'), ('Other', 'Other')], default='Transfer')
+    
+    payment_method = models.CharField(
+        max_length=10, 
+        choices=[('Cash', 'Cash'), ('Transfer', 'Transfer')],  
+        default='Transfer'
+    )
+
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Paid', 'Paid')], default='Pending')
     note = models.TextField(null=True, blank=True)
 
@@ -71,7 +77,7 @@ class Booking(models.Model):
     service = models.ForeignKey(Service, null=True, blank=True, on_delete=models.SET_NULL)
     review = models.ForeignKey(Review, null=True, blank=True, on_delete=models.SET_NULL)
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
-    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL)
+    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL, related_name="booking")
     booking_date = models.DateField()
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')], default='Pending')
     walk_in = models.BooleanField(default=False)

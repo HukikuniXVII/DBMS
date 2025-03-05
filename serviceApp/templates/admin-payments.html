@@ -52,25 +52,35 @@
             <thead>
                 <tr>
                     <th>Payment ID</th>
+                    <th>Booking ID</th>
                     <th>Staff</th>
                     <th>Payment Method</th>
                     <th>Amount</th>
                     <th>Payment Date</th>
                     <th>Status</th>
                     <th>Note</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for payment in payments %}
                 <tr>
                     <td>{{ payment.payment_id }}</td>
+                    <td>{{ payment.booking.first.booking_id }}</td> 
                     <td>{{ payment.staff }}</td>
                     <td>{{ payment.payment_method }}</td>
                     <td>{{ payment.amount }}</td>
                     <td>{{ payment.payment_date }}</td>
-                    <td>{{ payment.status }}</td> 
+                    <td>
+                        <span class="badge 
+                            {% if payment.status == 'Paid' %}bg-success
+                            {% elif payment.status == 'Pending' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}" id="status-{{ payment.id }}">
+                            {{ payment.status }}
+                        </span>
+                    </td>
                     <td>{{ payment.note }}</td> 
+
+
                 </tr>
                 {% empty %}
                 <tr>

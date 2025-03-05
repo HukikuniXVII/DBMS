@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from loginApp.models import Customer
-from .models import Staff,Review
+from .models import Staff,Review,Booking
 
 class EditProfileForm(forms.ModelForm):
     birthdate = forms.DateField(
@@ -30,3 +30,18 @@ class ReviewForm(forms.ModelForm):
         fields = ['rating', 'comments']
 
     review_date = forms.DateField(widget=forms.SelectDateWidget(years=range(2000, 2100)))
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['customer', 'booking_date', 'service', 'staff']
+
+    booking_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(BookingForm, self).__init__(*args, **kwargs)
+        self.fields['customer'].widget.attrs.update({'class': 'form-control'})
+        self.fields['service'].widget.attrs.update({'class': 'form-select'})
+        self.fields['staff'].widget.attrs.update({'class': 'form-select'})

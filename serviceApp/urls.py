@@ -14,11 +14,8 @@ urlpatterns = [
     path('update-booking/<int:booking_id>/<str:status>/', views.update_booking_status, name='update_booking_status'),
     path('get-service-duration/<int:service_id>/', views.get_service_duration, name='get_service_duration'),
 
-
     path('admin-services/', views.manage_services),
     
-
-
     path('admin-services/', views.manage_services, name='manage_services'),
 
     path('edit-service/<int:service_id>/', views.edit_service, name='edit_service'),
@@ -44,7 +41,8 @@ urlpatterns = [
     path('admin-reviews/', views.manage_reviews, name='admin_reviews'),
 
     # BOOKING admin
-    path('admin-bookings/',views.admin_bookings, name='admin-bookings'),
+    path('admin-bookings/add/',  views.add_booking,name='add_booking'),
+    path('admin-bookings/', views.booking_list, name='admin-bookings'),
 
     # PAYMENT admin
     path('admin-payments/',views.admin_payments, name='admin-payments'),
@@ -53,8 +51,8 @@ urlpatterns = [
     path('add-service/', views.add_service, name='add_service'),
 
     # EMPLOYEES admin
-    path('admin-employees-add-staff/', views.add_staff,     name='add_staff'),
-    path('admin-employees/',views.manage_staffs,  name='manage_staffs'),
+    path('admin-employees-add-staff/', views.add_staff,name='add_staff'),
+    path('admin-employees/',views.manage_staffs,  name='manage_staff'),
     path('staff/edit/<int:staff_id>/', views.edit_staff, name='edit_staff'),
     path('staff/delete/<int:staff_id>/', views.delete_staff, name='delete_staff'),
 

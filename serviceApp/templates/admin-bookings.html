@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Bookings</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
             display: flex;
@@ -53,15 +54,19 @@
     <div class="content">
         <div class="card mt-4 p-3">
             <h1>Manage Bookings</h1>
+
+            <!-- add booking -->
+            <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addBookingModal">Add Booking</button>
             
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Booking ID</th>
-                        <th>Email</th>
+                        <th>Name</th>
                         <th>Date & Time</th>
                         <th>Service</th>
                         <th>Staff</th>
+                        <th>Walk in</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -70,11 +75,39 @@
                     {% for booking in bookings %}
                     <tr id="booking-{{ booking.id }}">
                         <td>{{ booking.booking_id }}</td>
-                        <td>{{ booking.customer__email }}</td>
+                        <td>
+                            {% if booking.customer_data %}
+                                {% if booking.walk_in %}
+                                    {{ booking.customer_data.name }} <!-- แสดงชื่อของ TemporaryCustomer -->
+                                {% else %}
+                                    {{ booking.customer_data.first_name }} {{ booking.customer_data.last_name }} <!-- แสดงชื่อของ Customer -->
+                                {% endif %}
+                            {% else %}
+                                (ไม่ระบุชื่อ)
+                            {% endif %}
+                        </td>
                         <td>{{ booking.booking_date }}</td>
-                        <td>{{ booking.service__name }}</td>
-                        <td>{{ booking.staff__name }}</td>
-
+                        <td>
+                            {% if booking.service %}
+                                {{ booking.service.name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if booking.staff %}
+                                {{ booking.staff.name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if booking.walk_in == 1 %}bg-success
+                                {% else %}bg-danger{% endif %}" id="walk_in-{{ booking.id }}">
+                                {% if booking.walk_in == 1 %}Yes{% else %}No{% endif %}
+                            </span>
+                        </td>
                         <td>
                             <span class="badge 
                                 {% if booking.status == 'Confirmed' %}bg-success
@@ -84,7 +117,7 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Confirmed')" >Confirm</button>
+                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Confirmed')">Confirm</button>
                             <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Canceled')">Cancel</button>
                         </td>
                     </tr>
@@ -95,8 +128,77 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
+
+            <!-- Add Booking Modal -->
+            <div class="modal fade" id="addBookingModal" tabindex="-1" aria-labelledby="addBookingModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addBookingModalLabel">Add Booking</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addBookingForm" method="POST" action="{% url 'add_booking' %}">
+                                {% csrf_token %}                           
+
+                                <div class="mb-3">
+                                    <label for="customer" class="form-label">Customer</label>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" required>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
+                                        </div>
+                                    </div>
+                                </div>        
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="0891234567" required>
+                                </div>         
+                                
+                                <div class="mb-3">
+                                    <label for="bookingDate" class="form-label">Date & Time</label>
+                                    <input type="datetime-local" class="form-control" id="bookingDate" name="booking_date" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="service" class="form-label">เลือกบริการ:</label>
+                                    <select id="service" name="service" class="form-control" required>
+                                        <option value="">-- กรุณาเลือกบริการ --</option>
+                                        {% for service in service_list %}
+                                            <option value="{{ service.service_id }}">{{ service.name }}</option>
+                                        {% empty %}
+                                            <option value="">No Services Available</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="staff" class="form-label">เลือกพนักงาน:</label>
+                                    <select id="staff" name="staff" class="form-control" required>
+                                        <option value="">-- กรุณาเลือก --</option>
+                                        {% for staff in staff_list %}
+                                            <option value="{{ staff.staff_id }}">{{ staff.name }}</option>
+                                        {% empty %}
+                                            <option value="">ไม่มีพนักงาน</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Add Booking</button>
+                            </form>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <script>
+
                 function updateBookingStatus(bookingId, status) {
                     if (!bookingId || bookingId === "undefined") {
                         alert("Error: bookingId is missing");

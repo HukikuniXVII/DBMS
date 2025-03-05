@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect ,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import datetime
-from .forms import EditProfileForm,StaffForm,ReviewForm
-from .models import Booking,Staff,Service,Payment,Review
+from .forms import EditProfileForm,StaffForm,ReviewForm,BookingForm
+from .models import Booking,Staff,Service,Payment,Review,TemporaryCustomer
 from loginApp.models import Customer
 from django.contrib import messages
 from django.db.models import Avg
@@ -196,55 +196,67 @@ def booking_view(request):
 def save_booking(request):
     if request.method == "POST":
         try:
+
             data = json.loads(request.body)
 
-            booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
+            try:
+                booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
+            except KeyError:
+                return JsonResponse({"status": "error", "message": "Date is missing."}, status=400)
 
-            staff = Staff.objects.get(staff_id=data['staff']) 
-            service = Service.objects.get(service_id=data['service'])  
+            try:
+                staff = Staff.objects.get(staff_id=data['staff'])
+            except Staff.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Staff not found."}, status=400)
 
-            # ตรวจสอบว่าเป็นผู้ใช้ที่ล็อกอินอยู่หรือไม่
+            try:
+                service = Service.objects.get(service_id=data['service'])
+            except Service.DoesNotExist:
+                return JsonResponse({"status": "error", "message": "Service not found."}, status=400)
+
             if request.user.is_authenticated:
                 customer = request.user.id
             else:
-                customer = None  # ถ้าไม่ได้ล็อกอิน
+                customer = None
 
-            # ถ้าไม่มี customer ให้ใช้ temp_customer จากข้อมูลใน data
             temp_customer = None
             if data.get('tempCustomer'):
-                temp_customer = TemporaryCustomer.objects.get(id=data['tempCustomer'])
-            
-            # ถ้าไม่มี customer และไม่มี temp_customer ให้ส่งข้อผิดพลาด
+                try:
+                    temp_customer = TemporaryCustomer.objects.get(id=data['tempCustomer'])
+                except TemporaryCustomer.DoesNotExist:
+                    return JsonResponse({"status": "error", "message": "Temporary customer not found."}, status=400)
+
             if not customer and not temp_customer:
                 return JsonResponse({"status": "error", "message": "No valid customer or temp_customer found."}, status=400)
 
-            # สร้าง booking
             booking = Booking.objects.create(
-                staff=staff, 
-                service=service,  
+                staff=staff,
+                service=service,
                 customer_id=customer,
                 booking_date=booking_date,
-                start_time=data['startTime'],  # เพิ่ม start_time
-                end_time=data['endTime'],  # เพิ่ม end_time ที่คำนวณแล้ว
-                status='Pending', 
-                walk_in=data.get('walkIn', False),  
-                commission_amount=data.get('commissionAmount', 0.00),  
-                temp_customer=temp_customer,  
+                start_time=data['startTime'],  
+                end_time=data['endTime'],  
+                status='Pending',
+                walk_in=data.get('walkIn', False),
+                commission_amount=data.get('commissionAmount', 0.00),
+                temp_customer=temp_customer,
             )
 
-            # สร้าง payment ถ้ามี
             if data.get('paymentMethod'):
-                amount = data.get('amount', 0.00)  
-                payment = Payment.objects.create(
-                    staff=staff,
-                    payment_date=datetime.now(),
-                    amount=amount,  
-                    payment_method=data['paymentMethod'],
-                    status='Pending',  
-                    note=data.get('additionalNotes', ''),
-                )
-                booking.payment = payment
-                booking.save()
+                try:
+                    amount = data.get('amount', 0.00)
+                    payment = Payment.objects.create(
+                        staff=staff,
+                        payment_date=datetime.datetime.now(),
+                        amount=amount,
+                        payment_method=data['paymentMethod'],
+                        status='Pending',
+                        note=data.get('additionalNotes', ''),
+                    )
+                    booking.payment = payment
+                    booking.save()
+                except Exception as e:
+                    return JsonResponse({"status": "error", "message": f"Error creating payment: {e}"}, status=400)
 
             return JsonResponse({"status": "success", "message": "Booking saved!", "booking_id": booking.booking_id})
 
@@ -261,13 +273,6 @@ def get_service_duration(request, service_id):
         return JsonResponse({'duration': service.duration})
     except Service.DoesNotExist:
         return JsonResponse({'error': 'Service not found'}, status=404)
-
-
-def admin_bookings(request):
-    bookings = Booking.objects.all().select_related('customer', 'service', 'staff').values(
-        'service_id', 'customer__email', 'booking_date', 'service__name', 'staff__name', 'status','booking_id'
-    )
-    return render(request, 'admin-bookings.html', {'bookings': list(bookings)})
 
 def manage_staff(request):
     if request.method == "POST":
@@ -304,14 +309,14 @@ def edit_staff(request, staff_id):
         staff.status = request.POST.get('status')
 
         staff.save()
-        return redirect('manage_staffs')
+        return redirect('manage_staff')
 
     return render(request, 'edit_staff.html', {'staff': staff})
 
 def delete_staff(request, staff_id):
     staff = get_object_or_404(Staff, pk=staff_id)
     staff.delete()
-    return redirect('manage_staffs')
+    return redirect('manage_staff')
 
 def manage_services(request):
     service_list = Service.objects.all()
@@ -333,12 +338,123 @@ def delete_service(request, service_id):
     service.delete()
     return redirect('admin-services')
 
+def booking_list(request):
+    # ดึงข้อมูลทั้งหมดของ booking
+    bookings = Booking.objects.all().select_related('service', 'staff')
+    
+    # กรองข้อมูลว่าเป็น TemporaryCustomer หรือ Customer
+    for booking in bookings:
+        if booking.walk_in:  # ถ้า walk_in เป็น True
+            # หากเป็น Walk-in จะใช้ TemporaryCustomer
+            booking.customer_data = TemporaryCustomer.objects.filter(temp_customer_id=booking.temp_customer_id).first()
+        else:
+            # ถ้าไม่ใช่ Walk-in ใช้ Customer ปกติ
+            booking.customer_data = booking.customer
+
+    service_list = Service.objects.all()
+    staff_list = Staff.objects.all()
+
+    # สำหรับการ debug
+    print("Bookings Data:")
+    for booking in bookings:
+        if booking.walk_in:
+            # ตรวจสอบก่อนว่า customer_data เป็น None หรือไม่
+            if booking.customer_data:
+                customer_name = f"TempCustomer: {booking.customer_data.name}"
+            else:
+                customer_name = "TempCustomer: No data"
+        else:
+            # ถ้าเป็น Customer ปกติ
+            if booking.customer_data:
+                customer_name = f"Customer: {booking.customer_data.first_name} {booking.customer_data.last_name}"
+            else:
+                customer_name = "Customer: No data"
+
+        print(f"Booking ID: {booking.booking_id}, Customer: {customer_name}")
+        print(f"Service: {booking.service.name}, Staff: {booking.staff.name}")
+        print(f"Booking Date: {booking.booking_date}, Status: {booking.status}")
+        
+    return render(request, 'admin-bookings.html', {
+        'bookings': bookings, 
+        'service_list': service_list, 
+        'staff_list': staff_list
+    })
+
+
+def add_booking(request):
+    if request.method == 'POST':
+        try:
+            print("Request method:", request.method)
+            print("Form data:", request.POST)
+            
+            # Get data from the form
+            phone = request.POST.get('phone')  # ใช้เบอร์โทร
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            booking_date = request.POST.get('booking_date')
+            service_id = request.POST.get('service')
+            staff_id = request.POST.get('staff')
+            
+            print("Phone:", phone)
+            print("First Name:", first_name)
+            print("Last Name:", last_name)
+            print("Booking Date:", booking_date)
+            print("Service ID:", service_id)
+            print("Staff ID:", staff_id)
+
+            # แปลงวันที่จาก input
+            booking_date = datetime.datetime.strptime(booking_date, '%Y-%m-%dT%H:%M')
+
+            # ดึงข้อมูลบริการและพนักงาน
+            service = Service.objects.get(service_id=service_id)
+            staff = Staff.objects.get(staff_id=staff_id)
+
+            # สร้างลูกค้าชั่วคราวใน TemporaryCustomer
+            temp_customer = TemporaryCustomer.objects.create(
+                name=f"{first_name} {last_name}",
+                phone=phone
+            )
+
+            print("Temporary Customer:", temp_customer)
+
+            # สร้างการจอง
+            booking = Booking(
+                customer=None,  # กำหนดเป็น None หรือสามารถเชื่อมต่อกับลูกค้าปกติได้ถ้าจำเป็น
+                temp_customer=temp_customer,  # เชื่อมโยงกับลูกค้าชั่วคราว
+                service=service,
+                staff=staff,
+                booking_date=booking_date,
+                status='Pending',
+                walk_in=True,
+            )
+            booking.save()
+
+            # Debug: print success message
+            print("Booking created:", booking)
+
+            messages.success(request, "Booking successfully created!")
+            return redirect('admin-bookings')  # Adjust redirect URL as needed
+
+        except Exception as e:
+            # Catch any errors and print them
+            print("Error during booking creation:", str(e))
+            messages.error(request, "Error creating booking.")
+            return render(request, 'admin-bookings.html', {'error': str(e)})
+
+    else:
+        # Handle GET request (if any)
+        return render(request, 'admin-bookings.html')
+
+
 def add_service(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-        duration = request.POST.get('duration_end')
+        duration = request.POST.get('duration')
         price = request.POST.get('price')
+
+        duration = int(duration)
+        price = float(price) if price else 0.0  
 
         Service.objects.create(name=name, description=description, duration=duration, price=price)
         return redirect('admin-services') 
@@ -368,7 +484,7 @@ def add_staff(request):
             birthdate=birthdate if birthdate else "1970-01-01",
             status=status
         )
-        return redirect('admin-employees') 
+        return redirect('manage_staff') 
 
     return render(request, 'admin-employees.html')
 
@@ -405,12 +521,3 @@ def update_booking_status(request, booking_id, status):
 
 def a_dashboard(request):
     return render(request,'ad.html')
-
-def a_emp(request):
-    return render(request,'admin-employees.html')
-
-def a_playment(request):
-    return render(request,'admin-payments.html')
-
-def a_service(request):
-    return render(request,'admin-services.html')
