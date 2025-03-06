@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Timeslots</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.min.js"></script>
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #343a40;
+            padding: 20px;
+            color: white;
+            position: fixed;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a href="/ad">Dashboard</a>
+        <a href="/admin-timeslot">TimeSlot</a>
+        <a href="/admin-users"> Users</a>
+        <a href="/admin-bookings"> Bookings</a>
+        <a href="/admin-employees"> Staff</a>
+        <a href="/admin-services"> Services</a>
+        <a href="/admin-payments">Payments</a>
+        <a href="/admin-reviews">Reviews</a>
+    </div>
+        
+    <div class="content">
+        <h1>Booking Calendar</h1>
+        <div id="calendar"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',  // แสดงเป็นรายสัปดาห์แบบมีช่วงเวลา
+                slotMinTime: "10:00:00",      // เริ่มวันจาก 10:00 น.
+                slotMaxTime: "22:00:00",      // สิ้นสุดที่ 22:00 น.
+                events: {{ events|safe }},
+                eventColor: '#F39C12',  // กำหนดสีพื้นฐานเป็นสีเหลือง
+                locale: 'th',  // ใช้ภาษาไทย
+                timeFormat: 'HH:mm', // กำหนดเวลาให้แสดงเป็น 24 ชั่วโมง
+                eventRender: function(info) {
+                    var formattedDate = info.event.extendedProps.formatted_date;
+                    info.el.querySelector('.fc-event-title').innerHTML = `${formattedDate} - ${info.event.title}`;
+    
+                    // ปรับให้ข้อความใน event แสดงสีดำในกรณีที่พื้นหลังเป็นสีเหลือง
+                    if (info.event.backgroundColor === '#F39C12') {
+                        info.el.querySelector('.fc-event-title').style.color = '#000000'; // ข้อความสีดำ
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>    
+    
+</body>
+</html>

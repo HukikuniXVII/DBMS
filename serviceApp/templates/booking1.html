@@ -182,7 +182,22 @@
                         <input type="date" id="date" name="date" required>
 
                         <label for="start-time">เริ่มเวลา:</label>
-                        <input type="time" id="start-time" name="start-time" required>
+                        <input type="time" id="start-time" name="start-time" min="10:00" max="22:00" required>
+
+                        <script>
+                            document.getElementById("start-time").addEventListener("change", function() {
+                                let selectedTime = this.value;
+                                let minTime = "10:00";
+                                let maxTime = "22:00";
+                            
+                                if (selectedTime < minTime || selectedTime > maxTime) {
+                                    alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
+                                    this.value = "";
+                                }
+                            });
+                        </script>
+                        
+                        <!-- Additional Notes -->       
 
                         <label for="message">บันทึกเพิ่มเติม:</label>
                         <textarea id="message" name="message"></textarea>
@@ -192,26 +207,43 @@
             </section>
         </div>
 
+
+
         <div class="step-content" id="step-2">
             <section id="book" class="booking-section">
                 <div class="booking-form">
                     <h2>ชำระค่ามัดจำในการจอง</h2>
 
-                    <form id="payment-form">
+                    <form id="payment-form" enctype="multipart/form-data"></form>
                         <div class="payment-container">
-                            <label><input type="radio" name="payment-method" value="qr-code" id="qr-code" class="payment-method"> ชำระผ่าน QR Code</label>
-                            <label><input type="radio" name="payment-method" value="cash" id="cash" class="payment-method"> ชำระเงินสด</label>
-
+                            <label>
+                                <input type="radio" name="payment-method" value="qr-code" class="payment-method"> ชำระผ่าน QR Code
+                            </label>
+                            
                             <div id="qr-code-fields" class="payment-fields" style="display: none;">
                                 <p>กรุณาสแกน QR Code ด้านล่างเพื่อชำระค่ามัดจำ</p>
-                                <img src="/static/images/qr-code.jpg" alt="QR Code" width="200">
+                                <div style="display: flex; justify-content: center;">
+                                    <img src="\static\css\qr-code.jpg" alt="QR Code" width="350">
+                                </div>
+            
                                 <label for="payment-proof">อัปโหลดหลักฐานการชำระเงิน:</label>
                                 <input type="file" id="payment-proof" name="payment-proof" accept="image/*" required>
+                                
+                                <div id="preview-container" style="display: none; text-align: center; margin-top: 10px;">
+                                    <p>ตัวอย่างหลักฐานการโอน:</p>
+                                    <img id="preview-image" src="" alt="Payment Proof" width="350" style="border: 1px solid #ddd; padding: 5px;">
+                                </div>
                             </div>
-
+            
+                            <!-- ตัวเลือกชำระเงินสด -->
+                            <label>
+                                <input type="radio" name="payment-method" value="cash" class="payment-method"> ชำระเงินสด
+                            </label>
+            
                             <div id="cash-fields" class="payment-fields" style="display: none;">
                                 <p>กรุณาชำระเงินสดที่ร้านในวันที่มาใช้บริการ</p>
                             </div>
+            
                         </div>
                     </form>
 
@@ -274,6 +306,7 @@
         </div>
 
         <script>
+
             let currentStep = 0;
             const steps = document.querySelectorAll(".step");
             const contents = document.querySelectorAll(".step-content");
@@ -362,7 +395,7 @@
                     return true;
                 }
 
-
+                
             function displayConfirmation() {
 
                 let staff = document.getElementById('staff');
@@ -424,8 +457,18 @@
             });
 
             updateSteps();
-            
+            document.getElementById("start-time").addEventListener("change", function() {
+                let timeInput = this.value;
+                console.log("เวลาที่เลือก:", timeInput);
+            });
+
             document.addEventListener("DOMContentLoaded", function() {
+
+                const paymentMethods = document.querySelectorAll(".payment-method");
+                const paymentProof = document.getElementById("payment-proof");
+                const previewContainer = document.getElementById("preview-container");
+                const previewImage = document.getElementById("preview-image");
+
                 let confirmBtn = document.getElementById("confirm-btn");
                 if (confirmBtn) {
                     confirmBtn.addEventListener("click", function () {
@@ -442,6 +485,35 @@
                 } else {
                     console.error("Confirm button not found!");
                 }
+
+                paymentMethods.forEach(method => {
+                    method.addEventListener("change", function() {
+                        if (this.value === "qr-code") {
+                            qrCodeFields.style.display = "block";
+                            cashFields.style.display = "none";
+                            paymentProof.required = true;
+                        } else if (this.value === "cash") {
+                            qrCodeFields.style.display = "none";
+                            cashFields.style.display = "block";
+                            paymentProof.required = false;
+                        }
+                    });
+                });
+
+                paymentProof.addEventListener("change", function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImage.src = e.target.result;
+                            previewContainer.style.display = "block";
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        previewContainer.style.display = "none";
+                    }
+                });
+
             }); 
             document.querySelectorAll("form").forEach(form => {
                 form.addEventListener("submit", function (event) {
@@ -506,15 +578,15 @@
                     },
                     body: JSON.stringify({
                         staff: bookingData.staff,
-                        service: bookingData.service, 
-                        date: bookingData.date, 
-                        startTime: bookingData.startTime, 
-                        endTime: bookingData.endTime, 
-                        paymentMethod: bookingData.paymentMethod, 
-                        additionalNotes: bookingData.additionalNotes || '', 
-                        walkIn: bookingData.walkIn || false, 
-                        commissionAmount: bookingData.commissionAmount || 0.00,
-                        tempCustomer: bookingData.tempCustomer || null 
+                        service: bookingData.service,
+                        date: bookingData.date,
+                        startTime: bookingData.startTime,
+                        endTime: bookingData.endTime,
+                        paymentMethod: bookingData.paymentMethod,
+                        additionalNotes: bookingData.additionalNotes || '',  // ให้เป็นค่าว่างหากไม่มี
+                        walkIn: bookingData.walkIn || false,  // กำหนดค่าเป็น false ถ้าไม่มี
+                        commissionAmount: bookingData.commissionAmount || 0.00,  // ค่าเริ่มต้นเป็น 0
+                        tempCustomer: bookingData.tempCustomer || null  // กำหนดเป็น null หากไม่มีลูกค้าชั่วคราว
                     })
                 })
                 .then(response => {
@@ -527,13 +599,13 @@
                 })
                 .then(data => {
                     if (data.status === "success") {
-                        console.error("Error saving successfully", data.booking_id);
+                        console.log("Booking saved successfully", data.booking_id); // ใช้ console.log สำหรับข้อความที่สำเร็จ
                     } else {
-                        console.error("Error saving booking", data.message);
+                        console.error("Error saving booking", data.message); // แสดงข้อความในกรณีที่มีข้อผิดพลาด
                     }
                 })
                 .catch(error => {
-                    console.error("Error saving booking", error);
+                    console.error("Error saving booking", error); // จัดการข้อผิดพลาดจากการส่งคำขอ
                 });
             }
 
@@ -541,6 +613,8 @@
                 return document.querySelector('[name=csrfmiddlewaretoken]').value;
             }
         </script>
+
+        
     
     </div>
 </body>

@@ -44,6 +44,7 @@
     <div class="sidebar">
         <h2>Admin Panel</h2>
         <a href="/ad">Dashboard</a>
+        <a href="/admin-timeslot">TimeSlot</a>
         <a href="/admin-users"> Users</a>
         <a href="/admin-bookings"> Bookings</a>
         <a href="/admin-employees"> Staff</a>
@@ -61,9 +62,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Booking ID</th>
-                        <th>Name</th>
-                        <th>Date & Time</th>
+                        <th style="width:5%">Book ID</th>
+                        <th style="width:20%">Name</th>
+                        <th>Time</th>
+                        <th>Date</th>
                         <th>Service</th>
                         <th>Staff</th>
                         <th>Walk in</th>
@@ -78,14 +80,15 @@
                         <td>
                             {% if booking.customer_data %}
                                 {% if booking.walk_in %}
-                                    {{ booking.customer_data.name }} <!-- แสดงชื่อของ TemporaryCustomer -->
+                                    {{ booking.customer_data.name }}
                                 {% else %}
-                                    {{ booking.customer_data.first_name }} {{ booking.customer_data.last_name }} <!-- แสดงชื่อของ Customer -->
+                                    {{ booking.customer_data.first_name }} {{ booking.customer_data.last_name }}
                                 {% endif %}
                             {% else %}
                                 (ไม่ระบุชื่อ)
                             {% endif %}
                         </td>
+                        <td>{{ booking.start_time }} - {{ booking.end_time }} </td>
                         <td>{{ booking.booking_date }}</td>
                         <td>
                             {% if booking.service %}
@@ -163,6 +166,27 @@
                                     <label for="bookingDate" class="form-label">Date & Time</label>
                                     <input type="datetime-local" class="form-control" id="bookingDate" name="booking_date" required>
                                 </div>
+                                
+                                <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    let bookingInput = document.getElementById("bookingDate");
+                                
+                                    let now = new Date();
+                                    let minDate = now.toISOString().slice(0, 16); 
+                                    bookingInput.min = minDate;
+                                
+                                    bookingInput.addEventListener("change", function () {
+                                        let selectedDate = new Date(this.value);
+                                        let selectedHour = selectedDate.getHours();
+                                        let selectedMinutes = selectedDate.getMinutes();
+                                
+                                        if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
+                                            alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
+                                            this.value = "";
+                                        }
+                                    });
+                                });
+                                </script>
                                 
                                 <div class="mb-3">
                                     <label for="service" class="form-label">เลือกบริการ:</label>

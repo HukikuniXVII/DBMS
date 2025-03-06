@@ -4,13 +4,13 @@
 
     <!-- 1 RATING/WRITE REVIEW -->
     <div><center>
-        <h1 style="color: #231F20; padding: 30px;">REVIEWS</h1>
+        <h1 style="color: #231F20; padding: 30px;">รีวิวจากลูกค้า</h1>
     </center></div>
     <div class="container">
         <div class="stats">
-            <h2>STATS</h2>
-            <p>TOTAL REVIEWS : <span id="totalReviews">0</span></p>
-            <p>AVERAGE RATING : <span id="averageRating">0</span>/5</p>
+            <h2>ข้อมูลทางสถิติ</h2>
+            <p>รีวิวทั้งหมด : <span id="totalReviews">0</span></p>
+            <p>เรตติ้งเฉลี่ย : <span id="averageRating">0</span>/5</p>
             <div class="rating-chart">
                 <div class="rating-bar">
                     <span>5 <i class="fas fa-star"></i>
@@ -51,7 +51,7 @@
         </div>
 
         <div class="review-form">
-            <h2>WRITE YOUR REVIEW</h2>
+            <h2>เขียนความพึงพอใจของคุณได้ที่นี่!</h2>
             <form id="reviewForm">
                 <textarea id="reviewText" rows="5" placeholder="Write your review" required></textarea>
                 <div class="stars" id="formStars">
@@ -61,8 +61,8 @@
                     <span data-rating="4">&#9733;</span>
                     <span data-rating="5">&#9733;</span>
                 </div>
-                <p>RATING: <span id="selectedRating">0</span>/5</p>
-                <button type="submit">SUBMIT REVIEW</button>
+                <p>ให้คะแนน: <span id="selectedRating">0</span>/5</p>
+                <button type="submit">ยืนยัน</button>
             </form>
         </div>
     </div>
@@ -263,38 +263,4 @@
     <br>
 
     <script src='https://kit.fontawesome.com/c8e4d183c2.js'></script>
-
-
-    <footer>
-        <a class="logo" style="color: #DAC494;     text-shadow: rgb(158, 158, 158) 1px 0 10px;
-font-size: 25px; margin-top: 50px; margin-left: 20px;" href="./index">MASSAGE & SPA</a>
-        <div class="nav">
-            <div class="links">
-                <ul>
-                    <li style=" color: #DAC494; font-size: 18px; font-weight: bold;">Link</li>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/service">Services</a></li>
-                    <li><a href="/review">Review</a></li>
-                    <li><a href="/account">Account</a></li>
-                </ul>
-            </div>
-            <div class="social">
-                <ul>
-                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Contact</li>
-                    <li>Email : @gmail.com</li>
-                    <li> Phone : 08812345678</li>
-                    <li> Address : 123 kosumpisai</li>
-                </ul>
-            </div>
-
-            <div class="opening">
-                <ul>
-                    <li style="color: #DAC494; font-size: 18px; font-weight: bold;">Opening Time</li>
-                    <li>Open 7 days a week </li>
-                    <li>10:00 - 00:00</li>
-
-                </ul>
-            </div>
-        </div>
-    </footer>
 {%endblock%}

@@ -69,6 +69,8 @@ class Payment(models.Model):
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Paid', 'Paid')], default='Pending')
     note = models.TextField(null=True, blank=True)
 
+    payment_proof = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
+
 class Booking(models.Model):
     booking_id = models.AutoField(primary_key=True)
     customer = models.ForeignKey('loginApp.Customer', null=True, blank=True, on_delete=models.SET_NULL)    
@@ -83,8 +85,7 @@ class Booking(models.Model):
     walk_in = models.BooleanField(default=False)
     commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     start_time = models.TimeField(null=True, blank=True)  
-    end_time = models.TimeField(null=True, blank=True)  
-
+    end_time = models.TimeField(null=True, blank=True) 
 
     def __str__(self):
         return f"{self.service} with {self.staff} on {self.booking_date}"

@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect ,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import datetime
 from .forms import EditProfileForm,StaffForm,ReviewForm,BookingForm
-from .models import Booking,Staff,Service,Payment,Review,TemporaryCustomer
+from .models import Booking,Staff,Service,Payment,Review,TemporaryCustomer, TimeSlot
 from loginApp.models import Customer
 from django.contrib import messages
 from django.db.models import Avg
@@ -196,24 +196,30 @@ def booking_view(request):
 def save_booking(request):
     if request.method == "POST":
         try:
-
             data = json.loads(request.body)
+            print(f"Received data: {data}")  # เพิ่มการ debug ข้อมูลที่รับเข้ามา
 
             try:
                 booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
             except KeyError:
                 return JsonResponse({"status": "error", "message": "Date is missing."}, status=400)
 
+            print(f"Booking Date: {booking_date}")  # ตรวจสอบวันที่ที่แปลงได้
+
+            # ตรวจสอบข้อมูลของ staff และ service
             try:
                 staff = Staff.objects.get(staff_id=data['staff'])
+                print(f"Staff: {staff}")
             except Staff.DoesNotExist:
                 return JsonResponse({"status": "error", "message": "Staff not found."}, status=400)
 
             try:
                 service = Service.objects.get(service_id=data['service'])
+                print(f"Service: {service}")
             except Service.DoesNotExist:
                 return JsonResponse({"status": "error", "message": "Service not found."}, status=400)
 
+            # ตรวจสอบว่า user login หรือไม่
             if request.user.is_authenticated:
                 customer = request.user.id
             else:
@@ -223,12 +229,38 @@ def save_booking(request):
             if data.get('tempCustomer'):
                 try:
                     temp_customer = TemporaryCustomer.objects.get(id=data['tempCustomer'])
+                    print(f"Temporary Customer: {temp_customer}")
                 except TemporaryCustomer.DoesNotExist:
                     return JsonResponse({"status": "error", "message": "Temporary customer not found."}, status=400)
 
             if not customer and not temp_customer:
                 return JsonResponse({"status": "error", "message": "No valid customer or temp_customer found."}, status=400)
 
+            # ตรวจสอบว่า TimeSlot ซ้อนกันหรือไม่
+            time_slot_exists = TimeSlot.objects.filter(
+                staff=staff,
+                slot_date=booking_date,
+                status='booked',
+                start_time__lt=data['endTime'],  # ถ้า start time ของจองใหม่ก่อน end time ของ booking ที่มี
+                end_time__gt=data['startTime']   # ถ้า end time ของจองใหม่หลัง start time ของ booking ที่มี
+            ).exists()
+
+            print(f"TimeSlot Exists: {time_slot_exists}")  # ตรวจสอบว่ามี TimeSlot นี้หรือไม่
+
+            if time_slot_exists:
+                return JsonResponse({"status": "error", "message": "TimeSlot already booked."}, status=400)
+
+            # สร้าง TimeSlot ใหม่
+            time_slot = TimeSlot.objects.create(
+                staff=staff,
+                slot_date=booking_date,
+                start_time=data['startTime'],
+                end_time=data['endTime'],
+                status='booked'
+            )
+            print(f"TimeSlot Created: {time_slot}")
+
+            # สร้างการจอง
             booking = Booking.objects.create(
                 staff=staff,
                 service=service,
@@ -240,7 +272,9 @@ def save_booking(request):
                 walk_in=data.get('walkIn', False),
                 commission_amount=data.get('commissionAmount', 0.00),
                 temp_customer=temp_customer,
+                slot=time_slot,  # เชื่อมโยงกับ TimeSlot ที่สร้างใหม่
             )
+            print(f"Booking Created: {booking}")
 
             if data.get('paymentMethod'):
                 try:
@@ -251,17 +285,19 @@ def save_booking(request):
                         amount=amount,
                         payment_method=data['paymentMethod'],
                         status='Pending',
-                        note=data.get('additionalNotes', ''),
+                        note=data.get('additionalNotes', ''), 
                     )
                     booking.payment = payment
                     booking.save()
+                    print(f"Payment Created: {payment}")
                 except Exception as e:
                     return JsonResponse({"status": "error", "message": f"Error creating payment: {e}"}, status=400)
 
             return JsonResponse({"status": "success", "message": "Booking saved!", "booking_id": booking.booking_id})
 
         except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)})
+            print(f"Error: {str(e)}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
@@ -339,75 +375,90 @@ def delete_service(request, service_id):
     return redirect('admin-services')
 
 def booking_list(request):
-    # ดึงข้อมูลทั้งหมดของ booking
     bookings = Booking.objects.all().select_related('service', 'staff')
     
-    # กรองข้อมูลว่าเป็น TemporaryCustomer หรือ Customer
     for booking in bookings:
-        if booking.walk_in:  # ถ้า walk_in เป็น True
-            # หากเป็น Walk-in จะใช้ TemporaryCustomer
+        if booking.walk_in: 
+
             booking.customer_data = TemporaryCustomer.objects.filter(temp_customer_id=booking.temp_customer_id).first()
         else:
-            # ถ้าไม่ใช่ Walk-in ใช้ Customer ปกติ
+
             booking.customer_data = booking.customer
 
     service_list = Service.objects.all()
     staff_list = Staff.objects.all()
 
-    # สำหรับการ debug
-    print("Bookings Data:")
+
     for booking in bookings:
         if booking.walk_in:
-            # ตรวจสอบก่อนว่า customer_data เป็น None หรือไม่
+
             if booking.customer_data:
                 customer_name = f"TempCustomer: {booking.customer_data.name}"
             else:
                 customer_name = "TempCustomer: No data"
         else:
-            # ถ้าเป็น Customer ปกติ
+
             if booking.customer_data:
                 customer_name = f"Customer: {booking.customer_data.first_name} {booking.customer_data.last_name}"
             else:
                 customer_name = "Customer: No data"
 
-        print(f"Booking ID: {booking.booking_id}, Customer: {customer_name}")
-        print(f"Service: {booking.service.name}, Staff: {booking.staff.name}")
-        print(f"Booking Date: {booking.booking_date}, Status: {booking.status}")
-        
     return render(request, 'admin-bookings.html', {
         'bookings': bookings, 
         'service_list': service_list, 
         'staff_list': staff_list
     })
 
-
 def add_booking(request):
     if request.method == 'POST':
         try:
-            print("Request method:", request.method)
-            print("Form data:", request.POST)
-            
             # Get data from the form
-            phone = request.POST.get('phone')  # ใช้เบอร์โทร
+            phone = request.POST.get('phone')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
             booking_date = request.POST.get('booking_date')
             service_id = request.POST.get('service')
             staff_id = request.POST.get('staff')
-            
-            print("Phone:", phone)
-            print("First Name:", first_name)
-            print("Last Name:", last_name)
-            print("Booking Date:", booking_date)
-            print("Service ID:", service_id)
-            print("Staff ID:", staff_id)
 
-            # แปลงวันที่จาก input
-            booking_date = datetime.datetime.strptime(booking_date, '%Y-%m-%dT%H:%M')
+            print(f"Received data: phone={phone}, first_name={first_name}, last_name={last_name}, booking_date={booking_date}, service_id={service_id}, staff_id={staff_id}")
 
-            # ดึงข้อมูลบริการและพนักงาน
+            # แปลงวันที่จาก input (แยกวันที่และเวลา)
+            booking_datetime = datetime.datetime.strptime(booking_date, '%Y-%m-%dT%H:%M')
+            booking_date = booking_datetime.date()
+            booking_time = booking_datetime.time()
+
+            print(f"Parsed booking date: {booking_date}, booking time: {booking_time}")
+
+            # ดึงข้อมูลบริการ และพนักงาน
             service = Service.objects.get(service_id=service_id)
             staff = Staff.objects.get(staff_id=staff_id)
+
+            print(f"Service: {service}, Staff: {staff}")
+
+            # ตรวจสอบ TimeSlot ที่ตรงกับเวลาที่เลือก
+            existing_time_slot = TimeSlot.objects.filter(
+                staff=staff,
+                slot_date=booking_date,
+                status='booked',
+                start_time__lt=booking_time,  # ถ้า start time ของจองใหม่ก่อน end time ของ booking ที่มี
+                end_time__gt=booking_time   # ถ้า end time ของจองใหม่หลัง start time ของ booking ที่มี
+            )
+
+            # ถ้ามีการซ้อนกันของเวลาจะต้องแสดงข้อความ error
+            if existing_time_slot.exists():
+                print(f"TimeSlot Exists: True - Conflicting time slot found: {existing_time_slot}")
+                messages.error(request, "TimeSlot already booked, please choose another time.")
+                return render(request, 'admin-bookings.html')
+
+            # ถ้าไม่พบ TimeSlot ที่ตรงกันให้สร้างใหม่
+            time_slot = TimeSlot.objects.create(
+                staff=staff,
+                slot_date=booking_date,
+                start_time=booking_time,
+                end_time=(datetime.datetime.combine(datetime.date.today(), booking_time) + datetime.timedelta(hours=1)).time(),  # เพิ่มเวลา 1 ชั่วโมง
+                status='booked'  # เปลี่ยนสถานะเป็น 'booked'
+            )
+            print(f"Created new TimeSlot: {time_slot}")
 
             # สร้างลูกค้าชั่วคราวใน TemporaryCustomer
             temp_customer = TemporaryCustomer.objects.create(
@@ -415,34 +466,53 @@ def add_booking(request):
                 phone=phone
             )
 
-            print("Temporary Customer:", temp_customer)
+            print(f"Temporary Customer Created: {temp_customer}")
 
             # สร้างการจอง
             booking = Booking(
-                customer=None,  # กำหนดเป็น None หรือสามารถเชื่อมต่อกับลูกค้าปกติได้ถ้าจำเป็น
-                temp_customer=temp_customer,  # เชื่อมโยงกับลูกค้าชั่วคราว
+                customer=None,
+                temp_customer=temp_customer,
                 service=service,
                 staff=staff,
+                slot=time_slot,  # เชื่อมโยงกับ TimeSlot
                 booking_date=booking_date,
                 status='Pending',
                 walk_in=True,
+                start_time=booking_time,  # เก็บเวลาเริ่มต้น
+                end_time=time_slot.end_time,  # ใช้เวลาใน slot
             )
-            booking.save()
 
-            # Debug: print success message
-            print("Booking created:", booking)
+            print(f"Booking Created: {booking}")
+
+
+            #data = json.loads(request.body)
+            data = request.POST  
+            amount = data.get('amount', 0.00)
+
+            payment = Payment.objects.create(
+                staff=staff,
+                payment_date=datetime.datetime.now(),
+                amount=amount,
+                payment_method=data['paymentMethod'],
+                status='Pending',
+                note=data.get('additionalNotes', ''), 
+            )
+
+            booking.payment = payment
+            booking.save()
+            
+            print(f"Payment Created: {payment}")
+
 
             messages.success(request, "Booking successfully created!")
             return redirect('admin-bookings')  # Adjust redirect URL as needed
 
         except Exception as e:
-            # Catch any errors and print them
-            print("Error during booking creation:", str(e))
-            messages.error(request, "Error creating booking.")
+            messages.error(request, f"Error creating booking: {str(e)}")
+            print(f"Error: {str(e)}")  # เพิ่มการ debug ข้อผิดพลาด
             return render(request, 'admin-bookings.html', {'error': str(e)})
 
     else:
-        # Handle GET request (if any)
         return render(request, 'admin-bookings.html')
 
 
@@ -508,15 +578,48 @@ def update_booking_status(request, booking_id, status):
                 payment.status = 'Paid'
                 payment.save()
     
-    if status in ['Canceled']:
+    if status == 'Canceled':
         with transaction.atomic():
             payments = Payment.objects.filter(booking=booking)
             for payment in payments:
                 payment.status = 'Canceled'
                 payment.save()
 
+        # ลบ TimeSlot ที่เกี่ยวข้องกับการจองนี้
+        if booking.slot:
+            booking.slot.delete()
+
     return JsonResponse({'success': True})
 
+def admin_timeslot(request):
+    bookings = Booking.objects.select_related('service', 'staff', 'slot').all()
+    
+    events = []
+    for booking in bookings:
+        if booking.slot:  # ตรวจสอบว่ามี slot หรือไม่
+            start_time = datetime.datetime.strptime(f"{booking.slot.slot_date} {booking.slot.start_time}", "%Y-%m-%d %H:%M:%S")
+            end_time = datetime.datetime.strptime(f"{booking.slot.slot_date} {booking.slot.end_time}", "%Y-%m-%d %H:%M:%S")
+
+            # กำหนดสีตามสถานะการจอง
+            if booking.status == "Confirmed":
+                color = "red"
+            elif booking.status == "Pending":
+                color = "yellow"
+            else:
+                color = "green"
+
+            # ปรับ format วันที่เป็น วัน/เดือน (ภาษาไทย)
+            formatted_date = start_time.strftime("%d/%b")  # เช่น 06/Mar
+
+            events.append({
+                "title": f"{booking.service.name} - {booking.staff.name}",
+                "start": start_time.strftime("%Y-%m-%dT%H:%M:%S"),  # รูปแบบเวลาเป็น 24 ชั่วโมง
+                "end": end_time.strftime("%Y-%m-%dT%H:%M:%S"),  # รูปแบบเวลาเป็น 24 ชั่วโมง
+                "color": color,
+                "formatted_date": formatted_date  # แสดงวันที่ในรูปแบบ วัน/เดือน
+            })
+
+    return render(request, 'admin-timeslot.html', {"events": events})
 
 
 def a_dashboard(request):

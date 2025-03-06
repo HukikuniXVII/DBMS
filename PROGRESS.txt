@@ -2,24 +2,26 @@ admin
     ✅-booking 
     ✅-payment (calculate amount)
     ✅-review
-    -time slot (wait)
+    -time slot (wait) #บัคจองเวลาซ้อน เพิ่มผิดพลาดถ้าเวลาถูกจองแล้ว
     ✅-user
     ✅-staff
     ✅-service
-    ✅-recipt but not insert into payment_id
-    
+    ✅-recipt
+
     ++ login page for admin ++
 
 home
     ✅-service
     ✅-review 
-    ✅-booking 
+    ✅-booking (no proof payment)
     ✅-login 
-    ✅register 
+    ✅-register 
 
 fix review model set time default to date_today
 fix booking model add start and end_time
 แก้ Service Duration ให้เป็น Integer จำนวนนาทีของบริการ
 เพิ่ม amount ใน admin-payment
-
+change payment method cash , QRcode
+add start_time , end_time to booking
 add booking for temp_customer
+

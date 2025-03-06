@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.urls import path,include
 from serviceApp import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     path('ad/',views.a_dashboard),
@@ -58,4 +61,11 @@ urlpatterns = [
 
     # USER admin
     path('delete_user/<int:user_id>/', views.delete_user, name='delete_user'),
+
+    # TIMESLOT admin
+    path('admin-timeslot/', views.admin_timeslot, name='admin_timeslot'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
