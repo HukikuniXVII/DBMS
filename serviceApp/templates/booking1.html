@@ -111,7 +111,7 @@
 
         <nav class="navbar">
             <div href="/" class="logo">
-                <h2>ชื่อร้าน</h2>
+                <h2>กมลรัตน์ นวดเพื่อสุขภาพ</h2>
             </div>
 
             <label for="input-hamburger" class="hamburger">
@@ -226,8 +226,10 @@
                                     <img src="\static\css\qr-code.jpg" alt="QR Code" width="350">
                                 </div>
             
+                                {% csrf_token %}
                                 <label for="payment-proof">อัปโหลดหลักฐานการชำระเงิน:</label>
                                 <input type="file" id="payment-proof" name="payment-proof" accept="image/*" required>
+
                                 
                                 <div id="preview-container" style="display: none; text-align: center; margin-top: 10px;">
                                     <p>ตัวอย่างหลักฐานการโอน:</p>

@@ -2,18 +2,18 @@ admin
     ✅-booking 
     ✅-payment (calculate amount)
     ✅-review
-    -time slot (wait) #บัคจองเวลาซ้อน เพิ่มผิดพลาดถ้าเวลาถูกจองแล้ว
+    ✅-time slot #บัคจองเวลาซ้อน เพิ่มผิดพลาดถ้าเวลาถูกจองแล้ว
     ✅-user
     ✅-staff
     ✅-service
     ✅-recipt
 
-    ++ login page for admin ++
+    ❌⛔++ login page for admin ++❗❗❗❗❌
 
 home
     ✅-service
     ✅-review 
-    ✅-booking (no proof payment)
+    ✅-booking (no proof payment ไว้ก่อน)
     ✅-login 
     ✅-register 
 
@@ -25,3 +25,5 @@ change payment method cash , QRcode
 add start_time , end_time to booking
 add booking for temp_customer
 
+booking_status =/= payment_status
+no booking_id on payment

@@ -53,7 +53,6 @@
             <thead>
                 <tr>
                     <th>Payment ID</th>
-                    <th>Booking ID</th>
                     <th>Staff</th>
                     <th>Payment Method</th>
                     <th>Amount</th>
@@ -66,7 +65,6 @@
                 {% for payment in payments %}
                 <tr>
                     <td>{{ payment.payment_id }}</td>
-                    <td>{{ payment.booking.first.booking_id }}</td> 
                     <td>{{ payment.staff }}</td>
                     <td>{{ payment.payment_method }}</td>
                     <td>{{ payment.amount }}</td>

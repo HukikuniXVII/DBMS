@@ -16,10 +16,7 @@ urlpatterns = [
     path('account/', views.account_view, name='account'),
     path('update-booking/<int:booking_id>/<str:status>/', views.update_booking_status, name='update_booking_status'),
     path('get-service-duration/<int:service_id>/', views.get_service_duration, name='get_service_duration'),
-
-    path('admin-services/', views.manage_services),
     
-    path('admin-services/', views.manage_services, name='manage_services'),
 
     path('edit-service/<int:service_id>/', views.edit_service, name='edit_service'),
     path('delete-service/<int:service_id>/', views.delete_service, name='delete_service'), 
@@ -44,14 +41,16 @@ urlpatterns = [
     path('admin-reviews/', views.manage_reviews, name='admin_reviews'),
 
     # BOOKING admin
-    path('admin-bookings/add/',  views.add_booking,name='add_booking'),
+    path('admin-bookings/add/', views.add_booking, name='add_booking'),
     path('admin-bookings/', views.booking_list, name='admin-bookings'),
+    
 
     # PAYMENT admin
     path('admin-payments/',views.admin_payments, name='admin-payments'),
 
     # SERVICE admin
     path('add-service/', views.add_service, name='add_service'),
+    path('admin-services/', views.manage_services, name='manage_services'),
 
     # EMPLOYEES admin
     path('admin-employees-add-staff/', views.add_staff,name='add_staff'),
@@ -65,7 +64,4 @@ urlpatterns = [
     # TIMESLOT admin
     path('admin-timeslot/', views.admin_timeslot, name='admin_timeslot'),
 
-]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

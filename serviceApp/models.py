@@ -68,7 +68,6 @@ class Payment(models.Model):
 
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Paid', 'Paid')], default='Pending')
     note = models.TextField(null=True, blank=True)
-
     payment_proof = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
 
 class Booking(models.Model):
@@ -79,11 +78,11 @@ class Booking(models.Model):
     service = models.ForeignKey(Service, null=True, blank=True, on_delete=models.SET_NULL)
     review = models.ForeignKey(Review, null=True, blank=True, on_delete=models.SET_NULL)
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
-    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL, related_name="booking")
+    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL)
     booking_date = models.DateField()
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')], default='Pending')
     walk_in = models.BooleanField(default=False)
-    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # commissionrate * amount
     start_time = models.TimeField(null=True, blank=True)  
     end_time = models.TimeField(null=True, blank=True) 
 

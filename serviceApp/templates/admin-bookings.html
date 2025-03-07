@@ -143,8 +143,8 @@
                         </div>
                         <div class="modal-body">
                             <form id="addBookingForm" method="POST" action="{% url 'add_booking' %}">
-                                {% csrf_token %}                           
-
+                                {% csrf_token %}
+            
                                 <div class="mb-3">
                                     <label for="customer" class="form-label">Customer</label>
                                     <div class="row">
@@ -155,39 +155,18 @@
                                             <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
                                         </div>
                                     </div>
-                                </div>        
-
+                                </div>
+            
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
                                     <input type="tel" class="form-control" id="phone" name="phone" value="0891234567" required>
-                                </div>         
-                                
+                                </div>
+            
                                 <div class="mb-3">
                                     <label for="bookingDate" class="form-label">Date & Time</label>
                                     <input type="datetime-local" class="form-control" id="bookingDate" name="booking_date" required>
                                 </div>
-                                
-                                <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    let bookingInput = document.getElementById("bookingDate");
-                                
-                                    let now = new Date();
-                                    let minDate = now.toISOString().slice(0, 16); 
-                                    bookingInput.min = minDate;
-                                
-                                    bookingInput.addEventListener("change", function () {
-                                        let selectedDate = new Date(this.value);
-                                        let selectedHour = selectedDate.getHours();
-                                        let selectedMinutes = selectedDate.getMinutes();
-                                
-                                        if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
-                                            alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
-                                            this.value = "";
-                                        }
-                                    });
-                                });
-                                </script>
-                                
+            
                                 <div class="mb-3">
                                     <label for="service" class="form-label">เลือกบริการ:</label>
                                     <select id="service" name="service" class="form-control" required>
@@ -199,7 +178,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                
+            
                                 <div class="mb-3">
                                     <label for="staff" class="form-label">เลือกพนักงาน:</label>
                                     <select id="staff" name="staff" class="form-control" required>
@@ -211,10 +190,9 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                
-                                <button type="submit" class="btn btn-primary">Add Booking</button>
+            
+                                <button type="submit" class="btn btn-primary" disabled>Add Booking</button>
                             </form>
-                            
                         </div>
                     </div>
                 </div>
@@ -222,6 +200,30 @@
 
 
             <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    let bookingInput = document.getElementById("bookingDate");
+                    let submitButton = document.querySelector('button[type="submit"]');
+                    
+                    let now = new Date();
+                    let minDate = now.toISOString().slice(0, 16);
+                    bookingInput.min = minDate;
+                    
+                    submitButton.disabled = true;
+
+                    bookingInput.addEventListener("change", function () {
+                        let selectedDate = new Date(this.value);
+                        let selectedHour = selectedDate.getHours();
+                        let selectedMinutes = selectedDate.getMinutes();
+
+                        if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
+                            alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
+                            this.value = "";
+                            submitButton.disabled = true;
+                        } else {
+                            submitButton.disabled = false;
+                        }
+                    });
+                });
 
                 function updateBookingStatus(bookingId, status) {
                     if (!bookingId || bookingId === "undefined") {

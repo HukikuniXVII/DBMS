@@ -197,33 +197,26 @@ def save_booking(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            print(f"Received data: {data}")  # เพิ่มการ debug ข้อมูลที่รับเข้ามา
+            print(f"Received data: {data}")
 
-            try:
-                booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
-            except KeyError:
-                return JsonResponse({"status": "error", "message": "Date is missing."}, status=400)
+            booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
+            start_time = datetime.datetime.strptime(data['startTime'], '%H:%M').time()
+            end_time = datetime.datetime.strptime(data['endTime'], '%H:%M').time()
 
-            print(f"Booking Date: {booking_date}")  # ตรวจสอบวันที่ที่แปลงได้
-
-            # ตรวจสอบข้อมูลของ staff และ service
+            # Fetch Staff
             try:
                 staff = Staff.objects.get(staff_id=data['staff'])
-                print(f"Staff: {staff}")
             except Staff.DoesNotExist:
                 return JsonResponse({"status": "error", "message": "Staff not found."}, status=400)
 
+            # Fetch Service
             try:
                 service = Service.objects.get(service_id=data['service'])
-                print(f"Service: {service}")
             except Service.DoesNotExist:
                 return JsonResponse({"status": "error", "message": "Service not found."}, status=400)
 
             # ตรวจสอบว่า user login หรือไม่
-            if request.user.is_authenticated:
-                customer = request.user.id
-            else:
-                customer = None
+            customer = request.user if request.user.is_authenticated else None
 
             temp_customer = None
             if data.get('tempCustomer'):
@@ -236,62 +229,57 @@ def save_booking(request):
             if not customer and not temp_customer:
                 return JsonResponse({"status": "error", "message": "No valid customer or temp_customer found."}, status=400)
 
-            # ตรวจสอบว่า TimeSlot ซ้อนกันหรือไม่
-            time_slot_exists = TimeSlot.objects.filter(
+            existing_slots = TimeSlot.objects.filter(
                 staff=staff,
                 slot_date=booking_date,
-                status='booked',
-                start_time__lt=data['endTime'],  # ถ้า start time ของจองใหม่ก่อน end time ของ booking ที่มี
-                end_time__gt=data['startTime']   # ถ้า end time ของจองใหม่หลัง start time ของ booking ที่มี
-            ).exists()
+                status='booked'
+            )
+            print(f"Existing booked slots for {staff} on {booking_date}:")
+            for slot in existing_slots:
+                print(f"Start: {slot.start_time}, End: {slot.end_time}")
 
-            print(f"TimeSlot Exists: {time_slot_exists}")  # ตรวจสอบว่ามี TimeSlot นี้หรือไม่
+            time_slot_exists = existing_slots.filter(
+                start_time__lt=end_time,  
+                end_time__gt=start_time  
+            ).exists()
 
             if time_slot_exists:
                 return JsonResponse({"status": "error", "message": "TimeSlot already booked."}, status=400)
 
-            # สร้าง TimeSlot ใหม่
-            time_slot = TimeSlot.objects.create(
-                staff=staff,
-                slot_date=booking_date,
-                start_time=data['startTime'],
-                end_time=data['endTime'],
-                status='booked'
-            )
-            print(f"TimeSlot Created: {time_slot}")
+            with transaction.atomic():
+                time_slot = TimeSlot.objects.create(
+                    staff=staff,
+                    slot_date=booking_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status='booked'
+                )
 
-            # สร้างการจอง
-            booking = Booking.objects.create(
-                staff=staff,
-                service=service,
-                customer_id=customer,
-                booking_date=booking_date,
-                start_time=data['startTime'],  
-                end_time=data['endTime'],  
-                status='Pending',
-                walk_in=data.get('walkIn', False),
-                commission_amount=data.get('commissionAmount', 0.00),
-                temp_customer=temp_customer,
-                slot=time_slot,  # เชื่อมโยงกับ TimeSlot ที่สร้างใหม่
-            )
-            print(f"Booking Created: {booking}")
+                booking = Booking.objects.create(
+                    staff=staff,
+                    service=service,
+                    customer=customer,
+                    booking_date=booking_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status='Pending',
+                    walk_in=data.get('walkIn', False),
+                    commission_amount=data.get('commissionAmount', 0.00),
+                    temp_customer=temp_customer,
+                    slot=time_slot,
+                )
 
-            if data.get('paymentMethod'):
-                try:
-                    amount = data.get('amount', 0.00)
+                if data.get('paymentMethod'):
                     payment = Payment.objects.create(
                         staff=staff,
                         payment_date=datetime.datetime.now(),
-                        amount=amount,
+                        amount=data.get('amount', 0.00),
                         payment_method=data['paymentMethod'],
                         status='Pending',
-                        note=data.get('additionalNotes', ''), 
+                        note=data.get('additionalNotes', '')
                     )
                     booking.payment = payment
                     booking.save()
-                    print(f"Payment Created: {payment}")
-                except Exception as e:
-                    return JsonResponse({"status": "error", "message": f"Error creating payment: {e}"}, status=400)
 
             return JsonResponse({"status": "success", "message": "Booking saved!", "booking_id": booking.booking_id})
 
@@ -409,7 +397,9 @@ def booking_list(request):
         'staff_list': staff_list
     })
 
+@csrf_exempt
 def add_booking(request):
+    '''
     if request.method == 'POST':
         try:
             # Get data from the form
@@ -469,7 +459,7 @@ def add_booking(request):
             print(f"Temporary Customer Created: {temp_customer}")
 
             # สร้างการจอง
-            booking = Booking(
+            booking = Booking.objects.create(
                 customer=None,
                 temp_customer=temp_customer,
                 service=service,
@@ -485,36 +475,113 @@ def add_booking(request):
             print(f"Booking Created: {booking}")
 
 
-            #data = json.loads(request.body)
-            data = request.POST  
-            amount = data.get('amount', 0.00)
+            payment_method = request.POST.get('paymentMethod')
+            payment_proof = request.FILES.get('payment_proof')
+            amount = float(request.POST.get('amount', 0.00))
 
             payment = Payment.objects.create(
                 staff=staff,
                 payment_date=datetime.datetime.now(),
                 amount=amount,
-                payment_method=data['paymentMethod'],
+                payment_proof=payment_proof,
+                payment_method=payment_method,
                 status='Pending',
-                note=data.get('additionalNotes', ''), 
+                note=request.POST.get('additionalNotes', '')
             )
 
             booking.payment = payment
-            booking.save()
             
             print(f"Payment Created: {payment}")
 
 
             messages.success(request, "Booking successfully created!")
-            return redirect('admin-bookings')  # Adjust redirect URL as needed
+            return redirect('admin-bookings')
 
         except Exception as e:
             messages.error(request, f"Error creating booking: {str(e)}")
-            print(f"Error: {str(e)}")  # เพิ่มการ debug ข้อผิดพลาด
+            print(f"Error: {str(e)}")
             return render(request, 'admin-bookings.html', {'error': str(e)})
 
     else:
         return render(request, 'admin-bookings.html')
+    '''
+    if request.method == 'POST':
+        try:
+            phone = request.POST.get('phone')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            booking_date = datetime.datetime.strptime(request.POST.get('booking_date'), '%Y-%m-%dT%H:%M')
+            service = Service.objects.get(service_id=request.POST.get('service'))
+            staff = Staff.objects.get(staff_id=request.POST.get('staff'))
 
+            booking_datetime = booking_date
+            booking_date = booking_datetime.date()
+            booking_time = booking_datetime.time()
+
+            existing_time_slot = TimeSlot.objects.filter(
+                staff=staff, 
+                slot_date=booking_date, 
+                status='booked',
+                start_time__lt=booking_time, 
+                end_time__gt=booking_time
+            )
+
+            if existing_time_slot.exists():
+                messages.error(request, "TimeSlot already booked, please choose another time.")
+                return render(request, 'admin-bookings.html')
+
+            time_slot = TimeSlot.objects.create(
+                staff=staff, 
+                slot_date=booking_date, 
+                start_time=booking_time,
+                end_time=(datetime.datetime.combine(datetime.date.today(), booking_time) + datetime.timedelta(hours=1)).time(),
+                status='booked'
+            )
+
+            temp_customer = TemporaryCustomer.objects.create(
+                name=f"{first_name} {last_name}", 
+                phone=phone
+            )
+
+            booking = Booking.objects.create(
+                temp_customer=temp_customer, 
+                service=service, 
+                staff=staff,
+                slot=time_slot, 
+                booking_date=booking_date, 
+                status='Pending',
+                walk_in=True, 
+                start_time=booking_time, 
+                end_time=time_slot.end_time
+            )
+
+            payment_method = 'cash'
+            amount = 1
+
+            if payment_method and amount:
+                print("Creating payment...")
+                payment = Payment.objects.create(
+                    staff=staff,
+                    payment_date=datetime.datetime.now(),
+                    amount=float(amount),
+                    payment_method=payment_method,
+                    payment_proof=None,
+                    status='Pending',
+                    note=request.POST.get('additionalNotes', '')
+                )
+                booking.payment = payment
+                booking.save()
+                print("Payment created successfully.")
+            else:
+                messages.error(request, "Missing payment data!")
+            messages.success(request, "Booking successfully created!")
+            return redirect('admin-bookings')
+
+        except Exception as e:
+            messages.error(request, f"Error creating booking: {str(e)}")
+            return render(request, 'admin-bookings.html', {'error': str(e)})
+
+    return render(request, 'admin-bookings.html')
 
 def add_service(request):
     if request.method == 'POST':
