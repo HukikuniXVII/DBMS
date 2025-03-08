@@ -135,3 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # ใช้ backend ปกติ
 )
+
+LOGIN_URL = 'admin-login'  # ถ้ายังไม่ได้ login ให้ไปที่หน้านี้
+LOGIN_REDIRECT_URL = 'ad'  # ถ้า login สำเร็จให้ไปหน้า dashboard
+LOGOUT_REDIRECT_URL = 'admin-login'  # ถ้า logout ให้กลับมาหน้า login

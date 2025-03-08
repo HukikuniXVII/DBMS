@@ -51,6 +51,8 @@
         <a href="/admin-services"> Services</a>
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
+        <a href="{% url 'admin-login' %}">Logout</a>
+
     </div>
     <div class="content">
         <div class="card mt-4 p-3">
@@ -70,6 +72,7 @@
                         <th>Staff</th>
                         <th>Walk in</th>
                         <th>Status</th>
+                        <th>Staff Income</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -88,7 +91,9 @@
                                 (ไม่ระบุชื่อ)
                             {% endif %}
                         </td>
-                        <td>{{ booking.start_time }} - {{ booking.end_time }} </td>
+                        <td>
+                            {{ booking.start_time|date:"H:i" }} - {{ booking.end_time|date:"H:i" }} น. 
+                        </td>
                         <td>{{ booking.booking_date }}</td>
                         <td>
                             {% if booking.service %}
@@ -120,6 +125,9 @@
                             </span>
                         </td>
                         <td>
+                            {{ booking.commission_amount }}
+                        </td>
+                        <td>
                             <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Confirmed')">Confirm</button>
                             <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking.booking_id }}', 'Canceled')">Cancel</button>
                         </td>
@@ -131,6 +139,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
             
 
             <!-- Add Booking Modal -->
@@ -191,40 +200,67 @@
                                     </select>
                                 </div>
             
-                                <button type="submit" class="btn btn-primary" disabled>Add Booking</button>
+                                <button type="submit" class="btn btn-primary">Add Booking</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
 
-
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
                     let bookingInput = document.getElementById("bookingDate");
+                    let staffSelect = document.getElementById("staff");
+                    let serviceSelect = document.getElementById("service");  // เพิ่มการเลือก service
                     let submitButton = document.querySelector('button[type="submit"]');
                     
                     let now = new Date();
                     let minDate = now.toISOString().slice(0, 16);
                     bookingInput.min = minDate;
                     
-                    submitButton.disabled = true;
-
-                    bookingInput.addEventListener("change", function () {
-                        let selectedDate = new Date(this.value);
+                    function checkAvailability() {
+                        let selectedDate = new Date(bookingInput.value);
                         let selectedHour = selectedDate.getHours();
                         let selectedMinutes = selectedDate.getMinutes();
+                        let staffId = staffSelect.value;
+                        let serviceId = serviceSelect.value;  // รับค่า service_id
+                        
+                        // ตรวจสอบว่าผู้ใช้เลือกพนักงาน, วันที่ และบริการแล้วหรือไม่
+                        if (!bookingInput.value || !staffId || !serviceId) {
+                            return;
+                        }
 
+                        // ตรวจสอบเวลาในช่วง 10:00 - 22:00
                         if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
                             alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
-                            this.value = "";
-                            submitButton.disabled = true;
-                        } else {
-                            submitButton.disabled = false;
+                            bookingInput.value = "";  // Clear input value
+                            return;
                         }
-                    });
-                });
 
+                        // แปลงวันและเวลาเป็นรูปแบบที่ Django ต้องการ
+                        let bookingDate = selectedDate.toISOString().slice(0, 10);  // '2025-03-14'
+                        let startTime = selectedDate.toTimeString().slice(0, 5);    // '11:20'
+
+                        // เช็คว่าช่วงเวลานี้ถูกจองไปแล้วหรือไม่
+                        fetch(`/check-timeslot-availability/?date=${bookingDate}&start_time=${startTime}&staff_id=${staffId}&service_id=${serviceId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (!data.available) {
+                                    alert("เวลาที่เลือกถูกจองไปแล้ว กรุณาเลือกเวลาใหม่");
+                                    bookingInput.value = "";  // Clear input value
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error checking timeslot:", error);
+                                alert("เกิดข้อผิดพลาดในการตรวจสอบช่วงเวลา");
+                            });
+                    }
+
+                    bookingInput.addEventListener("change", checkAvailability);
+                    staffSelect.addEventListener("change", checkAvailability);
+                    serviceSelect.addEventListener("change", checkAvailability);  // เพิ่มการตรวจสอบเมื่อเลือกบริการ
+                });
+            
                 function updateBookingStatus(bookingId, status) {
                     if (!bookingId || bookingId === "undefined") {
                         alert("Error: bookingId is missing");
@@ -268,7 +304,7 @@
                     })
                     .catch(error => console.error("Fetch error:", error));
                 }
-            </script>
+            </script>            
             
         </div>
     </div>

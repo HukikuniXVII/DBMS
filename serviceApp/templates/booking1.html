@@ -177,25 +177,47 @@
                             {% endfor %}
                         </select>
 
-                        <!-- Date and Time -->
                         <label for="date">วันที่จะมาใช้บริการ:</label>
-                        <input type="date" id="date" name="date" required>
+                    <input type="date" id="date" name="date" required>
 
-                        <label for="start-time">เริ่มเวลา:</label>
-                        <input type="time" id="start-time" name="start-time" min="10:00" max="22:00" required>
+                    <label for="start-time">เริ่มเวลา:</label>
+                    <input type="time" id="start-time" name="start-time" min="10:00" max="22:00" required>
 
-                        <script>
-                            document.getElementById("start-time").addEventListener("change", function() {
-                                let selectedTime = this.value;
-                                let minTime = "10:00";
-                                let maxTime = "22:00";
-                            
-                                if (selectedTime < minTime || selectedTime > maxTime) {
-                                    alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
-                                    this.value = "";
+                    <script>
+                        document.getElementById("start-time").addEventListener("change", function() {
+                        let selectedDate = document.getElementById("date").value;
+                        let selectedTime = this.value;
+                        let staffId = document.getElementById("staff").value;
+                        let selectedServiceId = document.getElementById("service").value;  // ดึงค่า service_id
+
+                        if (!selectedDate || !selectedTime || !staffId || !selectedServiceId) {
+                            alert("กรุณาเลือกวันที่ เวลา พนักงาน และบริการก่อน");
+                            this.value = "";
+                            return;
+                        }
+
+                        let minTime = "10:00";
+                        let maxTime = "22:00";
+                        
+                        if (selectedTime < minTime || selectedTime > maxTime) {
+                            alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
+                            this.value = "";
+                            return;
+                        }
+
+                        // เช็คความพร้อมของ TimeSlot
+                        fetch(`/check-timeslot-availability/?date=${selectedDate}&start_time=${selectedTime}&staff_id=${staffId}&service_id=${selectedServiceId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (!data.available) {
+                                    alert(data.message);
+                                    document.getElementById("start-time").value = ""; // เคลียร์ช่องเวลา
                                 }
-                            });
-                        </script>
+                            })
+                            .catch(error => console.error("Error checking timeslot:", error));
+                    });
+
+                    </script>
                         
                         <!-- Additional Notes -->       
 
@@ -374,13 +396,22 @@
 
                         getServiceDuration(service).then(duration => {
                             if (duration) {
-                                let startTimeObj = new Date(`1970-01-01T${startTime}:00Z`); 
+                                // แปลง startTime เป็น Date object
+                                let startTimeObj = new Date(`1970-01-01T${startTime}:00`);
+
+                                // คำนวณเวลา endTime โดยเพิ่ม duration (เป็นนาที)
                                 let endTimeObj = new Date(startTimeObj.getTime() + duration * 60000);
 
-                                let endTime = endTimeObj.toISOString().substr(11, 5);  
-                                console.log("Calculated End Time:", endTime);
+                                // แปลง endTime ให้เป็นเวลาในรูปแบบ 24 ชั่วโมง
+                                let endTime24Hr = endTimeObj.toLocaleTimeString([], { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit', 
+                                    hour12: false // ใช้เวลาในรูปแบบ 24 ชั่วโมง
+                                });
 
-                                bookingData.endTime = endTime;  
+                                console.log("Calculated End Time (24-hour):", endTime24Hr);
+
+                                bookingData.endTime = endTime24Hr;  
                             }
                         });
                         

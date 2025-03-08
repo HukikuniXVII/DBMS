@@ -44,53 +44,83 @@
         <a href="/admin-services"> Services</a>
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
-
+        <a href="{% url 'admin-login' %}">Logout</a>
     </div>
     <div class="content">
-    <div class="card mt-4 p-3">
-        <h1>Manage Payments</h1>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Payment ID</th>
-                    <th>Staff</th>
-                    <th>Payment Method</th>
-                    <th>Amount</th>
-                    <th>Payment Date</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for payment in payments %}
-                <tr>
-                    <td>{{ payment.payment_id }}</td>
-                    <td>{{ payment.staff }}</td>
-                    <td>{{ payment.payment_method }}</td>
-                    <td>{{ payment.amount }}</td>
-                    <td>{{ payment.payment_date }}</td>
-                    <td>
-                        <span class="badge 
-                            {% if payment.status == 'Paid' %}bg-success
-                            {% elif payment.status == 'Pending' %}bg-warning text-dark
-                            {% else %}bg-danger{% endif %}" id="status-{{ payment.id }}">
-                            {{ payment.status }}
-                        </span>
-                    </td>
-                    <td>{{ payment.note }}</td> 
-
-
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No payments found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="card mt-4 p-3">
+            <h1>Manage Payments</h1>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Booking ID</th>
+                        <th>Staff</th>
+                        <th>Service</th>
+                        <th>Payment Method</th>
+                        <th>Amount</th>
+                        <th>Payment Date</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_id }}</td>
+                        <td>
+                            {% if payment.payments_related_to_booking.all %}
+                                {% for booking in payment.payments_related_to_booking.all %}
+                                    {{ booking.booking_id }}<br>
+                                {% endfor %}
+                            {% else %}
+                                No bookings
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.payments_related_to_booking.all %}
+                                {% for booking in payment.payments_related_to_booking.all %}
+                                    {{ booking.staff }}<br>  <!-- แสดงข้อมูล staff จาก booking -->
+                                {% endfor %}
+                            {% else %}
+                                No staff
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.payments_related_to_booking.all %}
+                                {% for booking in payment.payments_related_to_booking.all %}
+                                    {% if booking.service %}
+                                        {{ booking.service.name }}<br>  <!-- แสดงข้อมูล service จาก booking -->
+                                    {% else %}
+                                        No service
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                No service
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.payment_method }}</td>
+                        <td>{{ payment.amount }}</td>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if payment.status == 'Paid' %}bg-success
+                                {% elif payment.status == 'Pending' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}" id="status-{{ payment.id }}">
+                                {{ payment.status }}
+                            </span>
+                        </td>
+                        <td>{{ payment.note }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No payments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-   
 </body>
+
 </html>
 

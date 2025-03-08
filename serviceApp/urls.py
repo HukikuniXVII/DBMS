@@ -3,10 +3,11 @@ from django.urls import path,include
 from serviceApp import views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('ad/',views.a_dashboard),
+
+
 
     path('save-booking/', views.save_booking),
     path('booking1/', views.booking_view, name='booking'),
@@ -43,7 +44,8 @@ urlpatterns = [
     # BOOKING admin
     path('admin-bookings/add/', views.add_booking, name='add_booking'),
     path('admin-bookings/', views.booking_list, name='admin-bookings'),
-    
+    path("check-timeslot-availability/", views.check_timeslot_availability),
+
 
     # PAYMENT admin
     path('admin-payments/',views.admin_payments, name='admin-payments'),
@@ -63,5 +65,13 @@ urlpatterns = [
 
     # TIMESLOT admin
     path('admin-timeslot/', views.admin_timeslot, name='admin_timeslot'),
+
+    # DASHBOARD admin
+    path('api/ad/', views.dashboard_stats, name='dashboard-stats'),
+    path('ad/', views.dashboard_view, name='ad'),
+
+    # LOGIN ADMIN
+    path('admin-login/', auth_views.LoginView.as_view(template_name='admin-login.html'), name='admin-login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='admin-login'), name='admin-logout'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

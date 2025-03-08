@@ -7,24 +7,50 @@ from .forms import EditProfileForm,StaffForm,ReviewForm,BookingForm
 from .models import Booking,Staff,Service,Payment,Review,TemporaryCustomer, TimeSlot
 from loginApp.models import Customer
 from django.contrib import messages
-from django.db.models import Avg
+from django.db.models import Avg,Sum
 import json
 from django.db import transaction
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+def superuser_required(user):
+    return user.is_superuser
 
+@user_passes_test(superuser_required)
+def dashboard_stats(request):
+    total_users = Customer.objects.count()
+    total_bookings = Booking.objects.count()
+    total_revenue = Booking.objects.aggregate(total=Sum('payment'))['total'] or 0
+
+    return JsonResponse({
+        "total_users": total_users,
+        "total_bookings": total_bookings,
+        "total_revenue": total_revenue
+    })
+
+@user_passes_test(superuser_required)
+def dashboard_view(request):
+    return render(request, 'ad.html')
+
+@user_passes_test(superuser_required)
 def admin_payments(request):
-    payments = Payment.objects.all()
+    payments = Payment.objects.all().prefetch_related(
+        'payments_related_to_booking__service',  
+        'payments_related_to_booking__staff'     
+    )
     return render(request, 'admin-payments.html', {'payments': payments})
 
+
+@user_passes_test(superuser_required)
 def manage_reviews(request):
     reviews_list = Review.objects.all()
     return render(request, 'admin-reviews.html', {'reviews_list': reviews_list})
 
+@user_passes_test(superuser_required)
 def service_list(request):
     services = Service.objects.all()
     return render(request, 'service.html', {'services': services})
 
-@csrf_exempt
+@user_passes_test(superuser_required)
 def get_reviews(request):
     if request.method == "GET":
         reviews = Review.objects.select_related("user").order_by("-review_date")[:10] 
@@ -41,6 +67,7 @@ def get_reviews(request):
         return JsonResponse({"reviews": review_list}, safe=False)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+@user_passes_test(superuser_required)
 def get_review_stats(request):
     reviews = Review.objects.all()
     total_reviews = reviews.count()
@@ -53,7 +80,7 @@ def get_review_stats(request):
         "rating_counts": rating_counts,
     })
 
-@csrf_exempt
+@user_passes_test(superuser_required)
 def submit_review(request):
     if request.method == "POST":
         try:
@@ -83,7 +110,7 @@ def submit_review(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-
+@user_passes_test(superuser_required)
 def delete_user(request, user_id):
     user = get_object_or_404(Customer, id=user_id)
 
@@ -93,6 +120,7 @@ def delete_user(request, user_id):
 
     return render(request, 'admin-users.html', {'user': user})
 
+@user_passes_test(superuser_required)
 def edit_profile(request, user_id):
     user = get_object_or_404(Customer, id=user_id)
 
@@ -108,7 +136,7 @@ def edit_profile(request, user_id):
 
     return render(request, "account", {"user": user})
 
-@login_required
+@user_passes_test(superuser_required)
 def account_view(request):
     user = request.user
     try:
@@ -139,7 +167,7 @@ def account_view(request):
 
     return render(request, 'account.html', {'user': user, 'customer': customer, 'bookings': bookings, 'form': form})
 
-@login_required
+@user_passes_test(superuser_required)
 def payment_methods(request):
     user = request.user
     customer = getattr(user, 'customer', None)
@@ -153,7 +181,7 @@ def payment_methods(request):
 
     return JsonResponse(list(payments), safe=False)
 
-@login_required
+@user_passes_test(superuser_required)
 def user_data(request):
     user = request.user
     customer = getattr(user, 'customer', None)  # Ensure user has a Customer profile
@@ -169,6 +197,7 @@ def user_data(request):
         "birthdate": str(customer.birthdate) if hasattr(customer, 'birthdate') else '',
     })
 
+@user_passes_test(superuser_required)
 def booking_history(request):
     user = request.user
     customer = getattr(user, 'customer', None)
@@ -182,6 +211,7 @@ def booking_history(request):
 
     return JsonResponse(list(bookings), safe=False)
 
+@user_passes_test(superuser_required)
 def booking_view(request):
 
     staff_list = Staff.objects.all()
@@ -192,8 +222,8 @@ def booking_view(request):
         'service_list': service_list,
     })
 
-@csrf_exempt
-def save_booking(request):
+@user_passes_test(superuser_required)
+def save_booking(request): #BOOKING HOME PAGE
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -264,7 +294,7 @@ def save_booking(request):
                     end_time=end_time,
                     status='Pending',
                     walk_in=data.get('walkIn', False),
-                    commission_amount=data.get('commissionAmount', 0.00),
+                    commission_amount=(staff.commission_rate*service.price),
                     temp_customer=temp_customer,
                     slot=time_slot,
                 )
@@ -273,7 +303,7 @@ def save_booking(request):
                     payment = Payment.objects.create(
                         staff=staff,
                         payment_date=datetime.datetime.now(),
-                        amount=data.get('amount', 0.00),
+                        amount=service.price,
                         payment_method=data['paymentMethod'],
                         status='Pending',
                         note=data.get('additionalNotes', '')
@@ -289,6 +319,7 @@ def save_booking(request):
 
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
+@user_passes_test(superuser_required)
 def get_service_duration(request, service_id):
     try:
     
@@ -298,6 +329,7 @@ def get_service_duration(request, service_id):
     except Service.DoesNotExist:
         return JsonResponse({'error': 'Service not found'}, status=404)
 
+@user_passes_test(superuser_required)
 def manage_staff(request):
     if request.method == "POST":
         form = StaffForm(request.POST)
@@ -312,14 +344,15 @@ def manage_staff(request):
 def review(request):
     return render(request,'review.html')
 
-@login_required(login_url='login')
+@user_passes_test(superuser_required)
 def booking1(request):
     return render(request,'booking1.html')
 
-@login_required(login_url='/login')
+@user_passes_test(superuser_required)
 def account(request):
     return render(request,'account.html')
 
+@user_passes_test(superuser_required)
 def edit_staff(request, staff_id):
     staff = get_object_or_404(Staff, pk=staff_id)
 
@@ -337,15 +370,18 @@ def edit_staff(request, staff_id):
 
     return render(request, 'edit_staff.html', {'staff': staff})
 
+@user_passes_test(superuser_required)
 def delete_staff(request, staff_id):
     staff = get_object_or_404(Staff, pk=staff_id)
     staff.delete()
     return redirect('manage_staff')
 
+@user_passes_test(superuser_required)
 def manage_services(request):
     service_list = Service.objects.all()
     return render(request, 'admin-services.html', {'service_list': service_list})
 
+@user_passes_test(superuser_required)
 def edit_service(request):
     if request.method == 'POST':
         service_id = request.POST.get('service_id')
@@ -357,11 +393,13 @@ def edit_service(request):
         service.save()
         return redirect('admin-services')
 
+@user_passes_test(superuser_required)
 def delete_service(request, service_id):
     service = get_object_or_404(Service, service_id=service_id)
     service.delete()
     return redirect('admin-services')
 
+@user_passes_test(superuser_required)
 def booking_list(request):
     bookings = Booking.objects.all().select_related('service', 'staff')
     
@@ -397,114 +435,9 @@ def booking_list(request):
         'staff_list': staff_list
     })
 
-@csrf_exempt
-def add_booking(request):
-    '''
-    if request.method == 'POST':
-        try:
-            # Get data from the form
-            phone = request.POST.get('phone')
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            booking_date = request.POST.get('booking_date')
-            service_id = request.POST.get('service')
-            staff_id = request.POST.get('staff')
-
-            print(f"Received data: phone={phone}, first_name={first_name}, last_name={last_name}, booking_date={booking_date}, service_id={service_id}, staff_id={staff_id}")
-
-            # แปลงวันที่จาก input (แยกวันที่และเวลา)
-            booking_datetime = datetime.datetime.strptime(booking_date, '%Y-%m-%dT%H:%M')
-            booking_date = booking_datetime.date()
-            booking_time = booking_datetime.time()
-
-            print(f"Parsed booking date: {booking_date}, booking time: {booking_time}")
-
-            # ดึงข้อมูลบริการ และพนักงาน
-            service = Service.objects.get(service_id=service_id)
-            staff = Staff.objects.get(staff_id=staff_id)
-
-            print(f"Service: {service}, Staff: {staff}")
-
-            # ตรวจสอบ TimeSlot ที่ตรงกับเวลาที่เลือก
-            existing_time_slot = TimeSlot.objects.filter(
-                staff=staff,
-                slot_date=booking_date,
-                status='booked',
-                start_time__lt=booking_time,  # ถ้า start time ของจองใหม่ก่อน end time ของ booking ที่มี
-                end_time__gt=booking_time   # ถ้า end time ของจองใหม่หลัง start time ของ booking ที่มี
-            )
-
-            # ถ้ามีการซ้อนกันของเวลาจะต้องแสดงข้อความ error
-            if existing_time_slot.exists():
-                print(f"TimeSlot Exists: True - Conflicting time slot found: {existing_time_slot}")
-                messages.error(request, "TimeSlot already booked, please choose another time.")
-                return render(request, 'admin-bookings.html')
-
-            # ถ้าไม่พบ TimeSlot ที่ตรงกันให้สร้างใหม่
-            time_slot = TimeSlot.objects.create(
-                staff=staff,
-                slot_date=booking_date,
-                start_time=booking_time,
-                end_time=(datetime.datetime.combine(datetime.date.today(), booking_time) + datetime.timedelta(hours=1)).time(),  # เพิ่มเวลา 1 ชั่วโมง
-                status='booked'  # เปลี่ยนสถานะเป็น 'booked'
-            )
-            print(f"Created new TimeSlot: {time_slot}")
-
-            # สร้างลูกค้าชั่วคราวใน TemporaryCustomer
-            temp_customer = TemporaryCustomer.objects.create(
-                name=f"{first_name} {last_name}",
-                phone=phone
-            )
-
-            print(f"Temporary Customer Created: {temp_customer}")
-
-            # สร้างการจอง
-            booking = Booking.objects.create(
-                customer=None,
-                temp_customer=temp_customer,
-                service=service,
-                staff=staff,
-                slot=time_slot,  # เชื่อมโยงกับ TimeSlot
-                booking_date=booking_date,
-                status='Pending',
-                walk_in=True,
-                start_time=booking_time,  # เก็บเวลาเริ่มต้น
-                end_time=time_slot.end_time,  # ใช้เวลาใน slot
-            )
-
-            print(f"Booking Created: {booking}")
-
-
-            payment_method = request.POST.get('paymentMethod')
-            payment_proof = request.FILES.get('payment_proof')
-            amount = float(request.POST.get('amount', 0.00))
-
-            payment = Payment.objects.create(
-                staff=staff,
-                payment_date=datetime.datetime.now(),
-                amount=amount,
-                payment_proof=payment_proof,
-                payment_method=payment_method,
-                status='Pending',
-                note=request.POST.get('additionalNotes', '')
-            )
-
-            booking.payment = payment
-            
-            print(f"Payment Created: {payment}")
-
-
-            messages.success(request, "Booking successfully created!")
-            return redirect('admin-bookings')
-
-        except Exception as e:
-            messages.error(request, f"Error creating booking: {str(e)}")
-            print(f"Error: {str(e)}")
-            return render(request, 'admin-bookings.html', {'error': str(e)})
-
-    else:
-        return render(request, 'admin-bookings.html')
-    '''
+#BOOKING ADMIN WALK_IN
+@user_passes_test(superuser_required)
+def add_booking(request): 
     if request.method == 'POST':
         try:
             phone = request.POST.get('phone')
@@ -543,6 +476,9 @@ def add_booking(request):
                 phone=phone
             )
 
+            print(staff.commission_rate)
+            print(service.price)
+
             booking = Booking.objects.create(
                 temp_customer=temp_customer, 
                 service=service, 
@@ -551,19 +487,20 @@ def add_booking(request):
                 booking_date=booking_date, 
                 status='Pending',
                 walk_in=True, 
+                commission_amount=(staff.commission_rate*service.price),
                 start_time=booking_time, 
                 end_time=time_slot.end_time
             )
 
             payment_method = 'cash'
-            amount = 1
+            amount = service.price
 
             if payment_method and amount:
                 print("Creating payment...")
                 payment = Payment.objects.create(
                     staff=staff,
                     payment_date=datetime.datetime.now(),
-                    amount=float(amount),
+                    amount=amount,
                     payment_method=payment_method,
                     payment_proof=None,
                     status='Pending',
@@ -583,6 +520,7 @@ def add_booking(request):
 
     return render(request, 'admin-bookings.html')
 
+@user_passes_test(superuser_required)
 def add_service(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -598,10 +536,12 @@ def add_service(request):
 
     return render(request, 'admin-services.html')
 
+@user_passes_test(superuser_required)
 def manage_staffs(request):
     staff_list = Staff.objects.all()
     return render(request, 'admin-employees.html', {'staff_list': staff_list})
 
+@user_passes_test(superuser_required)
 def add_staff(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -625,10 +565,12 @@ def add_staff(request):
 
     return render(request, 'admin-employees.html')
 
+@user_passes_test(superuser_required)
 def admin_users_view(request):
     customers = Customer.objects.all()
     return render(request, 'admin-users.html', {'customer': customers})
 
+@user_passes_test(superuser_required)
 def update_booking_status(request, booking_id, status):
     booking = get_object_or_404(Booking, booking_id=booking_id)
 
@@ -658,6 +600,7 @@ def update_booking_status(request, booking_id, status):
 
     return JsonResponse({'success': True})
 
+@user_passes_test(superuser_required)
 def admin_timeslot(request):
     bookings = Booking.objects.select_related('service', 'staff', 'slot').all()
     
@@ -671,7 +614,7 @@ def admin_timeslot(request):
             if booking.status == "Confirmed":
                 color = "red"
             elif booking.status == "Pending":
-                color = "yellow"
+                color = "#fceca9"
             else:
                 color = "green"
 
@@ -688,6 +631,77 @@ def admin_timeslot(request):
 
     return render(request, 'admin-timeslot.html', {"events": events})
 
+@user_passes_test(superuser_required)
+def check_timeslot_availability(request):
+    if request.method == "GET":
+        # รับค่าจาก request
+        date = request.GET.get('date')
+        start_time = request.GET.get('start_time')
+        staff_id = request.GET.get('staff_id')
+        service_id = request.GET.get('service_id')  # รับ service_id เพื่อดึงระยะเวลาจากบริการ
 
+        # เช็คว่าได้รับค่าทุกตัวหรือไม่
+        if not date or not start_time or not staff_id or not service_id:
+            return JsonResponse({"available": False, "message": "กรุณากรอกข้อมูลให้ครบถ้วน (date, start_time, staff_id, service_id)"})
+
+        try:
+            # ตรวจสอบรูปแบบของ start_time และแปลงให้เป็นรูปแบบที่ถูกต้อง
+            try:
+                booking_time = datetime.datetime.strptime(start_time, "%H:%M").time()
+            except ValueError:
+                # หากไม่ถูกต้องลองแปลงในรูปแบบ 12-hour และแปลงเป็น 24-hour
+                try:
+                    booking_time = datetime.datetime.strptime(start_time, "%I:%M %p").time()  # รูปแบบ 12-hour
+                    start_time = datetime.datetime.strptime(str(booking_time), "%H:%M").strftime("%H:%M")  # แปลงเป็น 24-hour
+                except ValueError:
+                    return JsonResponse({"available": False, "message": "รูปแบบเวลาไม่ถูกต้อง กรุณาใช้รูปแบบ HH:MM หรือ HH:MM AM/PM"})
+
+            # แปลงวันที่
+            booking_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+
+            # Debug print ค่า date และ start_time
+            print(f"Booking Date: {booking_date}, Booking Time: {booking_time}")
+
+            # ดึงระยะเวลาบริการจาก service_id
+            service = Service.objects.get(service_id=service_id)
+            service_duration = service.duration  # รับระยะเวลาในรูปของ minutes หรือที่เหมาะสม
+
+            # Debug print ค่า service_duration
+            print(f"Service Duration: {service_duration} minutes")
+
+            # คำนวณเวลา end_time
+            start_datetime = datetime.datetime.combine(booking_date, booking_time)
+            end_datetime = start_datetime + datetime.timedelta(minutes=service_duration)
+            end_time = end_datetime.time()
+
+            # Debug print ค่า end_time
+            print(f"Calculated End Time: {end_time}")
+
+            # ค้นหา TimeSlot ที่ตรงกับพนักงานและเวลา
+            existing_time_slot = TimeSlot.objects.filter(
+                staff_id=staff_id,
+                slot_date=booking_date,
+                start_time__lt=end_time,  # เช็คเวลาสิ้นสุด
+                end_time__gt=booking_time,  # เช็คเวลาเริ่มต้น
+                status='booked'
+            ).exists()
+
+            # Debug print ค่าผลลัพธ์จากการค้นหา TimeSlot
+            print(f"Existing Time Slot Found: {existing_time_slot}")
+
+            if existing_time_slot:
+                return JsonResponse({"available": False, "message": "เวลานี้ถูกจองแล้ว โปรดเลือกเวลาอื่น"})
+            return JsonResponse({"available": True})
+
+        except Service.DoesNotExist:
+            # Debug print เมื่อไม่พบบริการ
+            print(f"Service with ID {service_id} not found.")
+            return JsonResponse({"available": False, "message": "บริการนี้ไม่พบ"})
+        except Exception as e:
+            # Debug print เมื่อเกิดข้อผิดพลาด
+            print(f"Error: {str(e)}")
+            return JsonResponse({"available": False, "message": f"เกิดข้อผิดพลาด: {str(e)}"})
+
+@user_passes_test(superuser_required)
 def a_dashboard(request):
     return render(request,'ad.html')

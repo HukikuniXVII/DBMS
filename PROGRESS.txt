@@ -1,19 +1,18 @@
 admin
+    ✅-login page 
     ✅-booking 
-    ✅-payment (calculate amount)
+    ✅-payment
     ✅-review
-    ✅-time slot #บัคจองเวลาซ้อน เพิ่มผิดพลาดถ้าเวลาถูกจองแล้ว
+    ✅-time slot 
     ✅-user
     ✅-staff
     ✅-service
     ✅-recipt
 
-    ❌⛔++ login page for admin ++❗❗❗❗❌
-
 home
     ✅-service
     ✅-review 
-    ✅-booking (no proof payment ไว้ก่อน)
+    ✅-booking
     ✅-login 
     ✅-register 
 

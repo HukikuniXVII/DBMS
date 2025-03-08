@@ -58,7 +58,7 @@ class Payment(models.Model):
     payment_id = models.AutoField(primary_key=True)
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
     payment_date = models.DateField(null=True, blank=True, default=datetime.date(1970, 1, 1))
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # price 
     
     payment_method = models.CharField(
         max_length=10, 
@@ -70,6 +70,10 @@ class Payment(models.Model):
     note = models.TextField(null=True, blank=True)
     payment_proof = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
 
+    def __str__(self):
+        return f"Payment {self.payment_id}"
+
+
 class Booking(models.Model):
     booking_id = models.AutoField(primary_key=True)
     customer = models.ForeignKey('loginApp.Customer', null=True, blank=True, on_delete=models.SET_NULL)    
@@ -78,7 +82,7 @@ class Booking(models.Model):
     service = models.ForeignKey(Service, null=True, blank=True, on_delete=models.SET_NULL)
     review = models.ForeignKey(Review, null=True, blank=True, on_delete=models.SET_NULL)
     staff = models.ForeignKey(Staff, null=True, blank=True, on_delete=models.SET_NULL)
-    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL)
+    payment = models.ForeignKey(Payment, null=True, blank=True, on_delete=models.SET_NULL, related_name="payments_related_to_booking")
     booking_date = models.DateField()
     status = models.CharField(max_length=10, choices=[('Pending', 'Pending'), ('Confirmed', 'Confirmed'), ('Cancelled', 'Cancelled')], default='Pending')
     walk_in = models.BooleanField(default=False)

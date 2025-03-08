@@ -44,6 +44,7 @@
         <a href="/admin-services"> Services</a>
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
+        <a href="{% url 'admin-login' %}">Logout</a>
 
     </div>
     <div class="content">
@@ -150,8 +151,8 @@
                         <textarea class="form-control" id="editServiceDescription" name="description" rows="3" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editServiceDuration" class="form-label">Duration (hh:mm:ss)</label>
-                        <input type="time" class="form-control" id="editServiceDuration" name="duration" required>
+                        <label for="editServiceDuration" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="editServiceDuration" name="duration" required>
                     </div>
                     <div class="mb-3">
                         <label for="editServicePrice" class="form-label">Price</label>

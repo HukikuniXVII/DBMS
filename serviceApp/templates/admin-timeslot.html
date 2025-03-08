@@ -32,8 +32,18 @@
             text-decoration: none;
         }
         .sidebar a:hover {
-            background: #495057;
+            background: #495657;
         }
+
+        .fc-event-title {
+            padding: 2px;  /* ระยะห่างระหว่างข้อความและขอบ */
+            color: #000;  /* สีข้อความเป็นสีดำ */
+        }
+
+        .fc-event-time {
+        color: #000;  /* สีเวลาเป็นสีดำ */
+        }
+
     </style>
 </head>
 <body>
@@ -47,6 +57,7 @@
         <a href="/admin-services"> Services</a>
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
+        <a href="{% url 'admin-login' %}">Logout</a>
     </div>
         
     <div class="content">
@@ -62,7 +73,7 @@
                 slotMinTime: "10:00:00",      // เริ่มวันจาก 10:00 น.
                 slotMaxTime: "22:00:00",      // สิ้นสุดที่ 22:00 น.
                 events: {{ events|safe }},
-                eventColor: '#F39C12',  // กำหนดสีพื้นฐานเป็นสีเหลือง
+                eventColor: '#28a745',  // กำหนดสีพื้นฐานเป็นสีเหลือง
                 locale: 'th',  // ใช้ภาษาไทย
                 timeFormat: 'HH:mm', // กำหนดเวลาให้แสดงเป็น 24 ชั่วโมง
                 eventRender: function(info) {
@@ -70,8 +81,8 @@
                     info.el.querySelector('.fc-event-title').innerHTML = `${formattedDate} - ${info.event.title}`;
     
                     // ปรับให้ข้อความใน event แสดงสีดำในกรณีที่พื้นหลังเป็นสีเหลือง
-                    if (info.event.backgroundColor === '#F39C12') {
-                        info.el.querySelector('.fc-event-title').style.color = '#000000'; // ข้อความสีดำ
+                    if (info.event.backgroundColor === '#28a745') {
+                        info.el.querySelector('.fc-event-title').style.color = '#ffffff'; // ข้อความสีดำ
                     }
                 }
             });
