@@ -1,8 +1,6 @@
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect ,get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-import datetime
+from datetime import datetime, timedelta
 from .forms import EditProfileForm,StaffForm,ReviewForm,BookingForm
 from .models import Booking,Staff,Service,Payment,Review,TemporaryCustomer, TimeSlot
 from loginApp.models import Customer
@@ -15,17 +13,51 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 def superuser_required(user):
     return user.is_superuser
 
+def check_login_status(request):
+    return JsonResponse({"is_logged_in": request.user.is_authenticated})
+
 @user_passes_test(superuser_required)
 def dashboard_stats(request):
-    total_users = Customer.objects.count()
-    total_bookings = Booking.objects.count()
-    total_revenue = Booking.objects.aggregate(total=Sum('payment'))['total'] or 0
+    # รับพารามิเตอร์ timeframe จาก URL query
+    timeframe = request.GET.get('timeframe', 'month')  # เริ่มต้นเป็น 'month' หากไม่ได้ส่ง
 
+    # คำนวณวันที่เริ่มต้นของเดือนนี้
+    current_date = datetime.now()
+
+    if timeframe == 'month':
+        start_date = current_date.replace(day=1)  # เริ่มต้นที่วันที่ 1 ของเดือนนี้
+        end_date = current_date.replace(day=28) + timedelta(days=4)  # หาจุดสิ้นสุดของเดือนนี้
+        end_date = end_date - timedelta(days=end_date.day)  # ลดวันที่ออกเพื่อให้เป็นวันสุดท้ายของเดือน
+
+    elif timeframe == 'year':
+        start_date = current_date.replace(month=1, day=1)  # เริ่มต้นที่วันที่ 1 มกราคมของปีนี้
+        end_date = current_date.replace(month=12, day=31)  # สิ้นสุดวันที่ 31 ธันวาคม
+
+    else:  # 'day' เป็นค่าเริ่มต้น
+        start_date = current_date.replace(hour=0, minute=0, second=0, microsecond=0)  # เริ่มต้นที่เวลา 00:00:00
+        end_date = start_date  # วันเดียวกัน
+
+    # คำนวณข้อมูลที่กรองตามช่วงเวลา
+    total_users = Customer.objects.exclude(is_staff=True).count()
+
+    # คำนวณจำนวนการจองตามสถานะต่าง ๆ
+    total_bookings = Booking.objects.filter(booking_date__gte=start_date, booking_date__lte=end_date).count()
+    confirmed_bookings = Booking.objects.filter(booking_date__gte=start_date, booking_date__lte=end_date, status='Confirmed').count()
+    pending_bookings = Booking.objects.filter(booking_date__gte=start_date, booking_date__lte=end_date, status='Pending').count()
+    cancelled_bookings = Booking.objects.filter(booking_date__gte=start_date, booking_date__lte=end_date, status='Canceled').count()
+
+    total_revenue = Booking.objects.filter(booking_date__gte=start_date, booking_date__lte=end_date).aggregate(total=Sum('payment'))['total'] or 0
+
+    # ส่งข้อมูลกลับเป็น JSON
     return JsonResponse({
         "total_users": total_users,
         "total_bookings": total_bookings,
+        "confirmed_bookings": confirmed_bookings,
+        "pending_bookings": pending_bookings,
+        "cancelled_bookings": cancelled_bookings,
         "total_revenue": total_revenue
     })
+
 
 @user_passes_test(superuser_required)
 def dashboard_view(request):
@@ -94,7 +126,7 @@ def submit_review(request):
                 user=request.user, 
                 rating=rating,
                 comments=comments,
-                review_date=datetime.date.today()
+                review_date=datetime.today()
             )
         
             return JsonResponse({"message": "Review submitted successfully"})
@@ -216,16 +248,15 @@ def booking_view(request):
         'service_list': service_list,
     })
 
-@user_passes_test(superuser_required)
 def save_booking(request): #BOOKING HOME PAGE
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             print(f"Received data: {data}")
 
-            booking_date = datetime.datetime.strptime(data['date'], '%Y-%m-%d').date()
-            start_time = datetime.datetime.strptime(data['startTime'], '%H:%M').time()
-            end_time = datetime.datetime.strptime(data['endTime'], '%H:%M').time()
+            booking_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+            start_time = datetime.strptime(data['startTime'], '%H:%M').time()
+            end_time = datetime.strptime(data['endTime'], '%H:%M').time()
 
             # Fetch Staff
             try:
@@ -296,7 +327,7 @@ def save_booking(request): #BOOKING HOME PAGE
                 if data.get('paymentMethod'):
                     payment = Payment.objects.create(
                         staff=staff,
-                        payment_date=datetime.datetime.now(),
+                        payment_date=datetime.now(),
                         amount=service.price,
                         payment_method=data['paymentMethod'],
                         status='Pending',
@@ -333,6 +364,7 @@ def manage_staff(request):
         form = StaffForm()
     staff_list = Staff.objects.all()
     return render(request, 'admin-users.html', {'form': form, 'staff_list': staff_list})
+
 
 def review(request):
     return render(request,'review.html')
@@ -433,7 +465,7 @@ def add_booking(request):
             phone = request.POST.get('phone')
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
-            booking_date = datetime.datetime.strptime(request.POST.get('booking_date'), '%Y-%m-%dT%H:%M')
+            booking_date = datetime.strptime(request.POST.get('booking_date'), '%Y-%m-%dT%H:%M')
             service = Service.objects.get(service_id=request.POST.get('service'))
             staff = Staff.objects.get(staff_id=request.POST.get('staff'))
 
@@ -457,7 +489,7 @@ def add_booking(request):
                 staff=staff, 
                 slot_date=booking_date, 
                 start_time=booking_time,
-                end_time=(datetime.datetime.combine(datetime.date.today(), booking_time) + datetime.timedelta(hours=1)).time(),
+                end_time=(datetime.combine(datetime.today(), booking_time) + timedelta(hours=1)).time(),
                 status='booked'
             )
 
@@ -489,7 +521,7 @@ def add_booking(request):
                 print("Creating payment...")
                 payment = Payment.objects.create(
                     staff=staff,
-                    payment_date=datetime.datetime.now(),
+                    payment_date=datetime.now(),
                     amount=amount,
                     payment_method=payment_method,
                     payment_proof=None,
@@ -557,28 +589,37 @@ def add_staff(request):
 
 @user_passes_test(superuser_required)
 def admin_users_view(request):
-    customers = Customer.objects.all()
+    customers = Customer.objects.exclude(is_staff=True)
     return render(request, 'admin-users.html', {'customer': customers})
 
+@user_passes_test(superuser_required)
 def update_booking_status(request, booking_id, status):
     booking = get_object_or_404(Booking, booking_id=booking_id)
 
+    # ตรวจสอบสถานะปัจจุบันของการจอง ถ้าสถานะเป็น 'Canceled' หรือ 'Confirmed' จะไม่สามารถเปลี่ยนได้
+    if booking.status in ['Canceled', 'Confirmed']:
+        return JsonResponse({'success': False, 'error': 'ไม่สามารถแก้ไขอีกได้เนื่องจากถูกยืนยันสถานะแล้ว'}, status=400)
+
+    # ตรวจสอบสถานะที่เลือก ถ้าไม่อยู่ในรายการที่อนุญาตให้แก้ไข
     if status not in ['Pending', 'Paid', 'Confirmed', 'Canceled']:
         return JsonResponse({'success': False, 'error': 'Invalid booking status'}, status=400)
     
+    # อัปเดตสถานะของการจอง
     booking.status = status
     booking.save()
 
+    # ถ้าสถานะเป็น 'Paid' หรือ 'Confirmed'
     if status in ['Paid', 'Confirmed']:
         with transaction.atomic():
-            payments = Payment.objects.filter(booking=booking)
+            payments = Payment.objects.filter(payments_related_to_booking=booking)
             for payment in payments:
                 payment.status = 'Paid'
                 payment.save()
     
+    # ถ้าสถานะเป็น 'Canceled'
     if status == 'Canceled':
         with transaction.atomic():
-            payments = Payment.objects.filter(booking=booking)
+            payments = Payment.objects.filter(payments_related_to_booking=booking) 
             for payment in payments:
                 payment.status = 'Canceled'
                 payment.save()
@@ -596,8 +637,8 @@ def admin_timeslot(request):
     events = []
     for booking in bookings:
         if booking.slot:  # ตรวจสอบว่ามี slot หรือไม่
-            start_time = datetime.datetime.strptime(f"{booking.slot.slot_date} {booking.slot.start_time}", "%Y-%m-%d %H:%M:%S")
-            end_time = datetime.datetime.strptime(f"{booking.slot.slot_date} {booking.slot.end_time}", "%Y-%m-%d %H:%M:%S")
+            start_time = datetime.strptime(f"{booking.slot.slot_date} {booking.slot.start_time}", "%Y-%m-%d %H:%M:%S")
+            end_time = datetime.strptime(f"{booking.slot.slot_date} {booking.slot.end_time}", "%Y-%m-%d %H:%M:%S")
 
             # กำหนดสีตามสถานะการจอง
             if booking.status == "Confirmed":
@@ -635,17 +676,17 @@ def check_timeslot_availability(request):
         try:
             # ตรวจสอบรูปแบบของ start_time และแปลงให้เป็นรูปแบบที่ถูกต้อง
             try:
-                booking_time = datetime.datetime.strptime(start_time, "%H:%M").time()
+                booking_time = datetime.strptime(start_time, "%H:%M").time()
             except ValueError:
                 # หากไม่ถูกต้องลองแปลงในรูปแบบ 12-hour และแปลงเป็น 24-hour
                 try:
-                    booking_time = datetime.datetime.strptime(start_time, "%I:%M %p").time()  # รูปแบบ 12-hour
-                    start_time = datetime.datetime.strptime(str(booking_time), "%H:%M").strftime("%H:%M")  # แปลงเป็น 24-hour
+                    booking_time = datetime.strptime(start_time, "%I:%M %p").time()  # รูปแบบ 12-hour
+                    start_time = datetime.strptime(str(booking_time), "%H:%M").strftime("%H:%M")  # แปลงเป็น 24-hour
                 except ValueError:
                     return JsonResponse({"available": False, "message": "รูปแบบเวลาไม่ถูกต้อง กรุณาใช้รูปแบบ HH:MM หรือ HH:MM AM/PM"})
 
             # แปลงวันที่
-            booking_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            booking_date = datetime.strptime(date, "%Y-%m-%d").date()
 
             # Debug print ค่า date และ start_time
             print(f"Booking Date: {booking_date}, Booking Time: {booking_time}")
@@ -658,8 +699,8 @@ def check_timeslot_availability(request):
             print(f"Service Duration: {service_duration} minutes")
 
             # คำนวณเวลา end_time
-            start_datetime = datetime.datetime.combine(booking_date, booking_time)
-            end_datetime = start_datetime + datetime.timedelta(minutes=service_duration)
+            start_datetime = datetime.combine(booking_date, booking_time)
+            end_datetime = start_datetime + timedelta(minutes=service_duration)
             end_time = end_datetime.time()
 
             # Debug print ค่า end_time

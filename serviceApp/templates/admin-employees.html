@@ -34,6 +34,7 @@
         .sidebar a:hover {
             background: #495057;
         }
+        
     </style>
 </head>
 <body>
@@ -129,7 +130,10 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="status">Status</label>
-                                            <input type="text" class="form-control" id="status" name="status" value="{{ staff.status }}" required>
+                                            <select class="form-control" id="status" name="status" required>
+                                                <option value="Available" {% if staff.status == 'Available' %}selected{% endif %}>Available</option>
+                                                <option value="Unavailable" {% if staff.status == 'Unavailable' %}selected{% endif %}>Unavailable</option>
+                                            </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </form>
@@ -143,55 +147,58 @@
 
         </table>
 
-        <!-- Modal สำหรับ Add Staff -->
-        <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addStaffModalLabel">Add New Staff</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- ฟอร์มสำหรับ Add Staff -->
-                        <form method="POST" action="{% url 'add_staff' %}">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="speciality">Speciality</label>
-                                <input type="text" class="form-control" id="speciality" name="speciality" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="role">Role</label>
-                                <input type="text" class="form-control" id="role" name="role" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="commission_rate">Commission Rate</label>
-                                <input type="number" step="0.01" class="form-control" id="commission_rate" name="commission_rate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Phone</label>
-                                <input type="text" class="form-control" id="phone" name="phone" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="birthdate">Birthdate</label>
-                                <input type="date" class="form-control" id="birthdate" name="birthdate" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <input type="text" class="form-control" id="status" name="status" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Staff</button>
-                        </form>
-                    </div>
+    <!-- Modal สำหรับ Add Staff -->
+    <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStaffModalLabel">Add New Staff</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- ฟอร์มสำหรับ Add Staff -->
+                    <form method="POST" action="{% url 'add_staff' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="speciality">Speciality</label>
+                            <input type="text" class="form-control" id="speciality" name="speciality" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <input type="text" class="form-control" id="role" name="role" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="commission_rate">Commission Rate</label>
+                            <input type="number" step="0.01" class="form-control" id="commission_rate" name="commission_rate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="birthdate">Birthdate</label>
+                            <input type="date" class="form-control" id="birthdate" name="birthdate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="Available">Available</option>
+                                <option value="Unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Staff</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

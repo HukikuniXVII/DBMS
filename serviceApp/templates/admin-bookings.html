@@ -158,17 +158,17 @@
                                     <label for="customer" class="form-label">Customer</label>
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" required>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="ชื่อ" required>
                                         </div>
                                         <div class="col-sm-6">
-                                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="สกุล" required>
                                         </div>
                                     </div>
                                 </div>
             
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" value="0891234567" required>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="หมายเลขโทรศัพท์" required>
                                 </div>
             
                                 <div class="mb-3">
@@ -209,64 +209,74 @@
 
             <script>
                 document.addEventListener("DOMContentLoaded", function () {
-                    let bookingInput = document.getElementById("bookingDate");
-                    let staffSelect = document.getElementById("staff");
-                    let serviceSelect = document.getElementById("service");  // เพิ่มการเลือก service
-                    let submitButton = document.querySelector('button[type="submit"]');
+                let bookingInput = document.getElementById("bookingDate");
+                let staffSelect = document.getElementById("staff");
+                let serviceSelect = document.getElementById("service");  // เพิ่มการเลือก service
+                let submitButton = document.querySelector('button[type="submit"]');
+                
+                let now = new Date();
+                let minDate = now.toISOString().slice(0, 16);
+                bookingInput.min = minDate;
+                
+                function checkAvailability() {
+                    let selectedDate = new Date(bookingInput.value);
+                    let selectedHour = selectedDate.getHours();
+                    let selectedMinutes = selectedDate.getMinutes();
+                    let staffId = staffSelect.value;
+                    let serviceId = serviceSelect.value;  // รับค่า service_id
                     
-                    let now = new Date();
-                    let minDate = now.toISOString().slice(0, 16);
-                    bookingInput.min = minDate;
-                    
-                    function checkAvailability() {
-                        let selectedDate = new Date(bookingInput.value);
-                        let selectedHour = selectedDate.getHours();
-                        let selectedMinutes = selectedDate.getMinutes();
-                        let staffId = staffSelect.value;
-                        let serviceId = serviceSelect.value;  // รับค่า service_id
-                        
-                        // ตรวจสอบว่าผู้ใช้เลือกพนักงาน, วันที่ และบริการแล้วหรือไม่
-                        if (!bookingInput.value || !staffId || !serviceId) {
-                            return;
-                        }
-
-                        // ตรวจสอบเวลาในช่วง 10:00 - 22:00
-                        if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
-                            alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
-                            bookingInput.value = "";  // Clear input value
-                            return;
-                        }
-
-                        // แปลงวันและเวลาเป็นรูปแบบที่ Django ต้องการ
-                        let bookingDate = selectedDate.toISOString().slice(0, 10);  // '2025-03-14'
-                        let startTime = selectedDate.toTimeString().slice(0, 5);    // '11:20'
-
-                        // เช็คว่าช่วงเวลานี้ถูกจองไปแล้วหรือไม่
-                        fetch(`/check-timeslot-availability/?date=${bookingDate}&start_time=${startTime}&staff_id=${staffId}&service_id=${serviceId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (!data.available) {
-                                    alert("เวลาที่เลือกถูกจองไปแล้ว กรุณาเลือกเวลาใหม่");
-                                    bookingInput.value = "";  // Clear input value
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Error checking timeslot:", error);
-                                alert("เกิดข้อผิดพลาดในการตรวจสอบช่วงเวลา");
-                            });
-                    }
-
-                    bookingInput.addEventListener("change", checkAvailability);
-                    staffSelect.addEventListener("change", checkAvailability);
-                    serviceSelect.addEventListener("change", checkAvailability);  // เพิ่มการตรวจสอบเมื่อเลือกบริการ
-                });
-            
-                function updateBookingStatus(bookingId, status) {
-                    if (!bookingId || bookingId === "undefined") {
-                        alert("Error: bookingId is missing");
+                    // ตรวจสอบว่าผู้ใช้เลือกพนักงาน, วันที่ และบริการแล้วหรือไม่
+                    if (!bookingInput.value || !staffId || !serviceId) {
                         return;
                     }
+
+                    // ตรวจสอบว่าเวลาที่เลือกไม่ต่ำกว่าปัจจุบัน (ไม่ให้เลือกเวลาในอดีต)
+                    let currentDateTime = new Date();
+                    if (selectedDate < currentDateTime) {
+                        alert("ไม่สามารถเลือกเวลาในอดีตได้");
+                        bookingInput.value = "";  // เคลียร์ช่องเวลา
+                        return;
+                    }
+
+                    // ตรวจสอบเวลาในช่วง 10:00 - 22:00
+                    if (selectedHour < 10 || selectedHour > 22 || (selectedHour === 22 && selectedMinutes > 0)) {
+                        alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
+                        bookingInput.value = "";  // Clear input value
+                        return;
+                    }
+
+                    // แปลงวันและเวลาเป็นรูปแบบที่ Django ต้องการ
+                    let bookingDate = selectedDate.toISOString().slice(0, 10);  // '2025-03-14'
+                    let startTime = selectedDate.toTimeString().slice(0, 5);    // '11:20'
+
+                    // เช็คว่าช่วงเวลานี้ถูกจองไปแล้วหรือไม่
+                    fetch(`/check-timeslot-availability/?date=${bookingDate}&start_time=${startTime}&staff_id=${staffId}&service_id=${serviceId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.available) {
+                                alert("เวลาที่เลือกถูกจองไปแล้ว กรุณาเลือกเวลาใหม่");
+                                bookingInput.value = "";  // Clear input value
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error checking timeslot:", error);
+                            alert("เกิดข้อผิดพลาดในการตรวจสอบช่วงเวลา");
+                        });
+                }
+
+                bookingInput.addEventListener("change", checkAvailability);
+                staffSelect.addEventListener("change", checkAvailability);
+                serviceSelect.addEventListener("change", checkAvailability);  // เพิ่มการตรวจสอบเมื่อเลือกบริการ
+            });
+
             
+            function updateBookingStatus(bookingId, status) {
+                if (!bookingId || bookingId === "undefined") {
+                    alert("Error: bookingId is missing");
+                    return;
+                }
+
+                if (confirm("Are you sure you want to update the booking status?")) {
                     fetch(`/update-booking/${bookingId}/${status}/`, {
                         method: 'GET',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -275,13 +285,14 @@
                     .then(data => {
                         if (data.success) {
                             alert("อัปเดตสถานะการจองสำเร็จ!");
-                            location.reload();
+                            location.reload();  // รีเฟรชหน้า
                         } else {
                             alert("Error: " + data.error);
                         }
                     })
                     .catch(error => console.error("Fetch error:", error));
                 }
+            }
             
                 function updatePaymentStatus(paymentId, status) {
                     if (!paymentId || paymentId === "undefined") {

@@ -8,7 +8,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
 
 
-
+    path('check_login_status/', views.check_login_status, name='check_login_status'),    
     path('save-booking/', views.save_booking),
     path('booking1/', views.booking_view, name='booking'),
     path('payment-methods/', views.payment_methods, name='payment_methods'),

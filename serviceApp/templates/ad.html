@@ -60,57 +60,155 @@
         <a href="/admin-payments">Payments</a>
         <a href="/admin-reviews">Reviews</a>
         <a href="{% url 'admin-login' %}">Logout</a>
-
     </div>
     <div class="content">
-    <div class="col-md-9">
-        <div class="card p-3">
-            <h2>Overview</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card text-white bg-primary mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Users</h5>
-                            <p class="big-text" id="total-users">Loading...</p>
+        <div class="col-md-9">
+            <div class="card p-3">
+                <h2>Overview</h2>
+
+                <!-- แสดงจำนวนผู้ใช้ทั้งหมด -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card text-white bg-primary mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Users</h5>
+                                <p class="big-text" id="total-users">Loading...</p>
+                            </div>
                         </div>
                     </div>
+
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-success mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Bookings</h5>
-                            <p class="big-text" id="total-bookings">Loading...</p>
-                        </div>
+
+                <br>
+                <br>
+
+                <!-- แถบสำหรับเลือกช่วงเวลา -->
+                <div class="form-group" style="position: absolute; right: 20px; top: 210px;">
+                    <div style="display: flex; gap: 5px; margin-top: 10px;"> <!-- ลด gap ระหว่างปุ่ม -->
+                        <button id="day-btn" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;" onclick="setActiveButton('day')">Day</button>
+                        <button id="month-btn" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;" onclick="setActiveButton('month')">Month</button>
+                        <button id="year-btn" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;" onclick="setActiveButton('year')">Year</button>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-warning mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Revenue</h5>
-                            <p class="big-text" id="total-revenue">Loading...</p>
+
+                <!-- แสดงการจองต่างๆ และยอดรวม -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Confirmed Booking</h5>
+                                <p class="big-text" id="confirmed-bookings">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Pending Booking</h5>
+                                <p class="big-text" id="pending-bookings">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-danger mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Cancelled Booking</h5>
+                                <p class="big-text" id="cancelled-bookings">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Revenue</h5>
+                                <p class="big-text" id="total-revenue">Loading...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        fetch('/api/ad/')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('total-users').textContent = data.total_users;
-                document.getElementById('total-bookings').textContent = data.total_bookings;
-                document.getElementById('total-revenue').textContent = data.total_revenue.toFixed(2) + " ฿" ;
-            })
-            .catch(error => {
-                console.error('Error fetching dashboard data:', error);
-                document.getElementById('total-users').textContent = "Error!";
-                document.getElementById('total-bookings').textContent = "Error!";
-                document.getElementById('total-revenue').textContent = "Error!";
-            });
-    });
-</script>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ฟังก์ชันที่ใช้เพิ่มคลาส active ให้กับปุ่มที่เลือก
+            function setActiveButton(selected) {
+                // เอาคลาส active และ inactive ออกจากทุกปุ่ม
+                document.getElementById('day-btn').classList.remove('active', 'inactive');
+                document.getElementById('month-btn').classList.remove('active', 'inactive');
+                document.getElementById('year-btn').classList.remove('active', 'inactive');
+                
+                // เพิ่มคลาส active ให้กับปุ่มที่ถูกเลือก
+                document.getElementById(selected + '-btn').classList.add('active');
+    
+                // เพิ่มคลาส inactive ให้กับปุ่มที่ไม่ได้เลือก
+                if (selected !== 'day') document.getElementById('day-btn').classList.add('inactive');
+                if (selected !== 'month') document.getElementById('month-btn').classList.add('inactive');
+                if (selected !== 'year') document.getElementById('year-btn').classList.add('inactive');
+            }
+    
+            // เมื่อคลิกที่ปุ่มที่เลือกช่วงเวลา
+            document.getElementById('day-btn').addEventListener('click', function() {
+                setActiveButton('day');
+                fetchDashboardData('day');
+            });
+    
+            document.getElementById('month-btn').addEventListener('click', function() {
+                setActiveButton('month');
+                fetchDashboardData('month');
+            });
+    
+            document.getElementById('year-btn').addEventListener('click', function() {
+                setActiveButton('year');
+                fetchDashboardData('year');
+            });
+    
+            // ฟังก์ชันเพื่อดึงข้อมูลจาก API
+            function fetchDashboardData(timeFrame) {
+                fetch(`/api/ad/?timeframe=${timeFrame}`) // ส่งค่า timeframe ไปที่ API
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('total-users').textContent = data.total_users;
+                        document.getElementById('confirmed-bookings').textContent = data.confirmed_bookings;
+                        document.getElementById('pending-bookings').textContent = data.pending_bookings;
+                        document.getElementById('cancelled-bookings').textContent = data.cancelled_bookings;
+                        document.getElementById('total-revenue').textContent = data.total_revenue.toFixed(2) + " ฿";
+                    })
+                    .catch(error => {
+                        console.error('Error fetching dashboard data:', error);
+                        document.getElementById('total-users').textContent = "Error!";
+                        document.getElementById('confirmed-bookings').textContent = "Error!";
+                        document.getElementById('pending-bookings').textContent = "Error!";
+                        document.getElementById('cancelled-bookings').textContent = "Error!";
+                        document.getElementById('total-revenue').textContent = "Error!";
+                    });
+            }
+    
+            // เรียกใช้ครั้งแรกเพื่อแสดงข้อมูลที่เริ่มต้น
+            fetchDashboardData('day');
+            setActiveButton('day'); // ตั้งค่าเริ่มต้นให้ปุ่ม "Day" เป็นปุ่มที่ถูกเลือก
+        });
+    </script>
+    
+    <style>
+        /* กำหนดสไตล์สำหรับปุ่มที่ถูกเลือก */
+        .btn.active {
+            background-color: #007bff; /* สีเด่นของปุ่มที่เลือก */
+            border-color: #0056b3; /* สีขอบเด่นของปุ่มที่เลือก */
+        }
+    
+        /* กำหนดสไตล์สำหรับปุ่มที่ไม่ได้เลือก (สีเทา) */
+        .btn.inactive {
+            background-color: #6c757d; /* สีเทา */
+            border-color: #6c757d; /* ขอบสีเทา */
+        }
+    
+        /* กำหนดสไตล์ให้ปุ่มใกล้กัน */
+        .form-group .btn {
+            margin-right: 5px; /* ลดช่องว่างระหว่างปุ่ม */
+        }
+    </style>        
+    
+</body>
 </html>

@@ -82,37 +82,54 @@
             });
         });
 
-        document.getElementById("reviewForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+            document.getElementById("reviewForm").addEventListener("submit", function(e) {
+        e.preventDefault();
 
-            const ratingElement = document.getElementById("selectedRating");
-            const reviewText = document.getElementById("reviewText").value;
-            const rating = ratingElement ? parseInt(ratingElement.innerText) : 0;
-
-            if (!rating || rating < 1 || rating > 5) {
-                alert("Please select a valid rating!");
-                return;
-            }
-
-            fetch("/submit_review/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken"),
-                },
-                body: JSON.stringify({ rating: rating, comments: reviewText }),
-            })
+        // ตรวจสอบสถานะการล็อกอินก่อน
+        fetch("/check_login_status/")
             .then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    alert("Error: " + data.error);
-                } else {
-                    alert("Review submitted successfully!");
-                    loadStats();
+                if (!data.is_logged_in) {
+                    alert("กรุณาล็อกอินก่อนที่จะส่งรีวิว!");
+                    window.location.href = "/login/";  // เปลี่ยนเส้นทางไปยังหน้าล็อกอิน
+                    return;
                 }
+
+                // ถ้าผู้ใช้ล็อกอินแล้วให้ส่งรีวิว
+                const ratingElement = document.getElementById("selectedRating");
+                const reviewText = document.getElementById("reviewText").value;
+                const rating = ratingElement ? parseInt(ratingElement.innerText) : 0;
+
+                if (!rating || rating < 1 || rating > 5) {
+                    alert("กรุณาเลือกคะแนนที่ถูกต้อง!");
+                    return;
+                }
+
+                fetch("/submit_review/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"),
+                    },
+                    body: JSON.stringify({ rating: rating, comments: reviewText }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("เกิดข้อผิดพลาด: " + data.error);
+                    } else {
+                        alert("รีวิวถูกส่งเรียบร้อยแล้ว!");
+                        loadStats();
+                    }
+                })
+                .catch(error => console.error("Error:", error));
             })
-            .catch(error => console.error("Error:", error));
-        });
+            .catch(error => {
+                console.error("Error checking login status:", error);
+                alert("เกิดข้อผิดพลาดในการตรวจสอบสถานะการล็อกอิน");
+            });
+    });
+
 
         function loadStats() {
             fetch("/get_review_stats/")
