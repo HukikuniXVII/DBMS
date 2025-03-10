@@ -198,7 +198,17 @@
 
                         let minTime = "10:00";
                         let maxTime = "22:00";
+
+                        // เช็คว่าเวลาเลือกไม่เกินเวลาในอนาคต
+                        let currentDateTime = new Date();
+                        let selectedDateTime = new Date(`${selectedDate} ${selectedTime}`);
                         
+                        if (selectedDateTime < currentDateTime) {
+                            alert("ไม่สามารถเลือกเวลาในอดีตได้");
+                            this.value = "";
+                            return;
+                        }
+
                         if (selectedTime < minTime || selectedTime > maxTime) {
                             alert("กรุณาเลือกเวลาในช่วง 10:00 - 22:00");
                             this.value = "";

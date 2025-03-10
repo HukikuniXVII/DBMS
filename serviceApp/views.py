@@ -45,7 +45,6 @@ def manage_reviews(request):
     reviews_list = Review.objects.all()
     return render(request, 'admin-reviews.html', {'reviews_list': reviews_list})
 
-@user_passes_test(superuser_required)
 def service_list(request):
     services = Service.objects.all()
     return render(request, 'service.html', {'services': services})
@@ -67,7 +66,6 @@ def get_reviews(request):
         return JsonResponse({"reviews": review_list}, safe=False)
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
-@user_passes_test(superuser_required)
 def get_review_stats(request):
     reviews = Review.objects.all()
     total_reviews = reviews.count()
@@ -80,7 +78,6 @@ def get_review_stats(request):
         "rating_counts": rating_counts,
     })
 
-@user_passes_test(superuser_required)
 def submit_review(request):
     if request.method == "POST":
         try:
@@ -120,7 +117,6 @@ def delete_user(request, user_id):
 
     return render(request, 'admin-users.html', {'user': user})
 
-@user_passes_test(superuser_required)
 def edit_profile(request, user_id):
     user = get_object_or_404(Customer, id=user_id)
 
@@ -136,7 +132,6 @@ def edit_profile(request, user_id):
 
     return render(request, "account", {"user": user})
 
-@user_passes_test(superuser_required)
 def account_view(request):
     user = request.user
     try:
@@ -211,7 +206,6 @@ def booking_history(request):
 
     return JsonResponse(list(bookings), safe=False)
 
-@user_passes_test(superuser_required)
 def booking_view(request):
 
     staff_list = Staff.objects.all()
@@ -319,7 +313,6 @@ def save_booking(request): #BOOKING HOME PAGE
 
     return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
-@user_passes_test(superuser_required)
 def get_service_duration(request, service_id):
     try:
     
@@ -344,11 +337,9 @@ def manage_staff(request):
 def review(request):
     return render(request,'review.html')
 
-@user_passes_test(superuser_required)
 def booking1(request):
     return render(request,'booking1.html')
 
-@user_passes_test(superuser_required)
 def account(request):
     return render(request,'account.html')
 
@@ -399,7 +390,6 @@ def delete_service(request, service_id):
     service.delete()
     return redirect('admin-services')
 
-@user_passes_test(superuser_required)
 def booking_list(request):
     bookings = Booking.objects.all().select_related('service', 'staff')
     
@@ -570,7 +560,6 @@ def admin_users_view(request):
     customers = Customer.objects.all()
     return render(request, 'admin-users.html', {'customer': customers})
 
-@user_passes_test(superuser_required)
 def update_booking_status(request, booking_id, status):
     booking = get_object_or_404(Booking, booking_id=booking_id)
 
@@ -631,7 +620,6 @@ def admin_timeslot(request):
 
     return render(request, 'admin-timeslot.html', {"events": events})
 
-@user_passes_test(superuser_required)
 def check_timeslot_availability(request):
     if request.method == "GET":
         # รับค่าจาก request

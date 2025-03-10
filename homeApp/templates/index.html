@@ -48,7 +48,7 @@
             slideshowImages[currentImageCounter].style.opacity = 1;
         }
     </script>
-
+    
     <!-- SERVICE -->
     <div class="service">
         <center>
@@ -56,15 +56,16 @@
         </center>
 
         <br>
-        <div class="container"> 
+        <div class="container">
             <div class="row">
                 {% for service in services %}
-                    <div class="col-md-4">
-                        <div class="card">
-                            <img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top" alt="{{ service.name }}">
-                            <div class="card-body">
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card h-100" style="display: flex; flex-direction: column;">
+                            <!--<img src="https://spanepal.com/images/service_packages/1731929091.jpg" class="card-img-top" alt="{{ service.name }}">-->
+                            <img src="https://scontent.fkkc3-1.fna.fbcdn.net/v/t1.15752-9/480834772_1687267368893378_2234019290937741167_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeG1ykQt9Pvzp5aoLJ9n-muE_Prh0k6RNDb8-uHSTpE0NiM-O5qEF99sEK5UJcsNe82FqaxVVsdcACQdzs8ACXVo&_nc_ohc=OiIL7me_Nw8Q7kNvgGWX4cX&_nc_oc=Adj25GNp2bDWjVCwuaz9Z68QTOrEZwdnPiWdpfEtKvVagCPvzkd2ThM_IdRA9ViUNLIxk0uWTRFcq2ZNmVZq598l&_nc_zt=23&_nc_ht=scontent.fkkc3-1.fna&oh=03_Q7cD1wFZ8fYFE8xPHRS72ap4_fEJ0Ic2rGXcL9P5I3mxcGTYvA&oe=67F67244" class="card-img-top" alt="{{ service.name }}">
+                            <div class="card-body" style="display: flex; flex-direction: column; flex-grow: 1;">
                                 <h5 class="card-title">{{ service.name }}</h5>
-                                <p class="card-text">{{ service.description }}</p>
+                                <p class="card-text" style="flex-grow: 1;">{{ service.description }}</p>
                                 <div class="price">
                                     <p>{{ service.price }} / hr</p>
                                     <a href="/booking1/" class="book-button1">BOOK</a>
@@ -75,10 +76,11 @@
                 {% endfor %}
             </div>
         </div>
-        <center><a href="/service" style="margin-top: 20px;" class="book-button2">ดูบริการทั้งหมดที่มี</a>
-
+        <center><a href="/service" style="margin-top: 20px;" class="book-button2">ดูบริการทั้งหมดที่มี</a></center>
     </div>
     <br>
+
+
 
     <!-- REVIEW -->
     <div class="review">
@@ -183,29 +185,17 @@
     <section class="our-staff">
         <h1>พนักงาน</h1>
         <div class="staff-container">
-          <div class="staff-member">
-            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 1">
-            <h3>John Doe</h3>
-            <p>Therapist</p>
-            <p>John is a Licensed Massage and Bodywork Therapist</p>
-          </div>
-          <div class="staff-member">
-            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 2">
-            <h3>Jane Smith</h3>
-            <p>Therapist</p>
-            <p>Jane is a Licensed Massage and Bodywork Therapist</p>
-
-          </div>
-          <div class="staff-member">
-            <img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member 3">
-            <h3>Sam Brown</h3>
-            <p>Therapist</p>
-            <p>Sam is a Licensed Massage and Bodywork Therapist</p>
-
-          </div>
+            {% for staff in staff_members %}
+            <div class="staff-member">
+                <img src="https://scontent.fkkc3-1.fna.fbcdn.net/v/t1.15752-9/483333735_1139064758021128_836854567747656916_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=9f807c&_nc_eui2=AeEyUhjJuW7oaKZC8hT-gzzT-HVKt41RhID4dUq3jVGEgPMS7VKWNo9L4OEnXQu-6UT8rj9XxjFq-reiAmCU3H2x&_nc_ohc=He4fgxXpmFUQ7kNvgFvBz4t&_nc_oc=AdidLVS2LCD9JA9cIDl3ovKD6hqQEX_hpy-AYynhLKxscoyQcMWKl71lats5LbUEv2CopM6b_i77H8qswvYM8OaS&_nc_zt=23&_nc_ht=scontent.fkkc3-1.fna&oh=03_Q7cD1wF0tXcP7RDN_yHSAbQwuHhwLrjCXqqJ-slghHXIJ7Cwbg&oe=67F6779E" alt="Staff Member">
+                <!--<img src="https://st4.depositphotos.com/9998432/23741/v/450/depositphotos_237418842-stock-illustration-person-gray-photo-placeholder-woman.jpg" alt="Staff Member">-->
+                <h3>{{ staff.name }}</h3>
+                <p>{{ staff.role }}</p>
+                <p>{{ staff.speciality }}</p>
+            </div>
+            {% endfor %}
         </div>
-      </section>
-       
+    </section>
 
     </div>
     <br>

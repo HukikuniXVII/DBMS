@@ -1,16 +1,13 @@
 from django.shortcuts import render
-from serviceApp.models import Service,Review
+from serviceApp.models import Service,Review,Staff
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
-# Create your views here.
 def index(request):
-    return render(request, 'index.html')
-
-def main_service_list(request):
+    staff_members = Staff.objects.all()
     services = Service.objects.all()[:3]
-    return render(request, 'index.html', {'services': services})
+    return render(request, 'index.html', {'staff_members': staff_members, 'services': services})
 
 @csrf_exempt
 def get_reviews(request):
