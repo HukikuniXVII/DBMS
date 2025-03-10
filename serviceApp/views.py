@@ -80,11 +80,10 @@ def manage_reviews(request):
 def service_list(request):
     services = Service.objects.all()
     return render(request, 'service.html', {'services': services})
-
-@user_passes_test(superuser_required)
+    
 def get_reviews(request):
     if request.method == "GET":
-        reviews = Review.objects.select_related("user").order_by("-review_date")[:10] 
+        reviews = Review.objects.select_related("user").order_by("-review_date")
         review_list = [
             {
                 "name": review.user.get_full_name(),
@@ -97,6 +96,7 @@ def get_reviews(request):
         ]
         return JsonResponse({"reviews": review_list}, safe=False)
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 def get_review_stats(request):
     reviews = Review.objects.all()
@@ -734,3 +734,9 @@ def check_timeslot_availability(request):
 @user_passes_test(superuser_required)
 def a_dashboard(request):
     return render(request,'ad.html')
+
+@user_passes_test(superuser_required)
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, review_id=review_id)  
+    review.delete()
+    return redirect('admin_reviews')  

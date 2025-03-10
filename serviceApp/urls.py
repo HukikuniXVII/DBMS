@@ -39,6 +39,7 @@ urlpatterns = [
     path('service/', views.service_list, name='services_list'),
 
     # REVIEW admin
+    path('delete-review/<int:review_id>/', views.delete_review, name='delete_review'),
     path('admin-reviews/', views.manage_reviews, name='admin_reviews'),
 
     # BOOKING admin
